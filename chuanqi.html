@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>彩色漩涡动画</title>
+    <style>
+        body { 
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // 鼠标跟踪
+        const mouse = { x: width/2, y: height/2 };
+        window.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        // 动画参数
+        const params = {
+            lineCount: 150,     // 线条数量
+            baseRadius: 100,    // 基础半径
+            maxOffset: 50,      // 最大波动幅度
+            rotationSpeed: 0.02 // 旋转速度
+        };
+
+        class VortexLine {
+            constructor(angle) {
+                this.angle = angle;
+                this.hue = angle % 360;
+                this.offset = 0;
+            }
+
+            update(time) {
+                // 动态偏移计算
+                const mouseDist = Math.sqrt(
+                    Math.pow(mouse.x - width/2, 2) + 
+                    Math.pow(mouse.y - height/2, 2)
+                );
+
+                this.offset = Math.sin(time/500 + this.angle) * params.maxOffset * (mouseDist/width);
+                this.hue = (this.hue + 0.5) % 360;
+
+                // 动态线宽
+                this.lineWidth = 2 + Math.abs(Math.sin(time/1000 + this.angle)) * 3;
+            }
+
+            draw() {
+                const centerX = width/2;
+                const centerY = height/2;
+                const radius = params.baseRadius + this.offset;
+
+                const x1 = centerX + Math.cos(this.angle) * radius;
+                const y1 = centerY + Math.sin(this.angle) * radius;
+                const x2 = centerX + Math.cos(this.angle) * (radius + 80);
+                const y2 = centerY + Math.sin(this.angle) * (radius + 80);
+
+                // 创建渐变
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, `hsla(${this.hue}, 100%, 50%, 0.8)`);
+                gradient.addColorStop(1, `hsla(${(this.hue + 90) % 360}, 100%, 50%, 0.2)`);
+
+                // 绘制线条
+                ctx.beginPath();
+                ctx.lineWidth = this.lineWidth;
+                ctx.strokeStyle = gradient;
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+        }
+
+        // 初始化线条
+        const lines = Array.from({ length: params.lineCount }, (_, i) => 
+            new VortexLine((i * 2 * Math.PI) / params.lineCount)
+        );
+
+        // 动画循环
+        let time = 0;
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fillRect(0, 0, width, height);
+
+            lines.forEach(line => {
+                line.angle += params.rotationSpeed * (mouse.x/width - 0.5);
+                line.update(time);
+                line.draw();
+            });
+
+            time += 16;
+            requestAnimationFrame(animate);
+        }
+
+        // 窗口尺寸调整
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
