@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>彩色漩涡动画</title>
+    <title>炫酷粒子动画</title>
     <style>
-        body { 
+        body {
             margin: 0;
             overflow: hidden;
             background: #000;
@@ -19,98 +19,137 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
 
-        // 鼠标跟踪
-        const mouse = { x: width/2, y: height/2 };
-        window.addEventListener('mousemove', e => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
+        // 设置画布尺寸
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        // 动画参数
-        const params = {
-            lineCount: 150,     // 线条数量
-            baseRadius: 100,    // 基础半径
-            maxOffset: 50,      // 最大波动幅度
-            rotationSpeed: 0.02 // 旋转速度
-        };
+        // 粒子数组
+        let particles = [];
+        const particleCount = 100;
 
-        class VortexLine {
-            constructor(angle) {
-                this.angle = angle;
-                this.hue = angle % 360;
-                this.offset = 0;
+        // 颜色配置
+        const colors = ['#ff1461', '#18ff92', '#5a87ff', '#fbf38c'];
+
+        // 鼠标位置跟踪
+        const mouse = {
+            x: null,
+            y: null,
+            radius: 150
+        }
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.weight = Math.random() * 3 + 1;
+                this.directionX = (Math.random() * 2 - 1);
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = Math.random() * 0.5 + 0.3;
             }
 
-            update(time) {
-                // 动态偏移计算
-                const mouseDist = Math.sqrt(
-                    Math.pow(mouse.x - width/2, 2) + 
-                    Math.pow(mouse.y - height/2, 2)
-                );
+            update() {
+                // 粒子运动
+                this.directionX *= 0.99;
+                this.y -= this.weight;
 
-                this.offset = Math.sin(time/500 + this.angle) * params.maxOffset * (mouseDist/width);
-                this.hue = (this.hue + 0.5) % 360;
+                // 边界检测
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.weight = Math.random() * 3 + 1;
+                }
 
-                // 动态线宽
-                this.lineWidth = 2 + Math.abs(Math.sin(time/1000 + this.angle)) * 3;
+                // 鼠标互动
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+
+                if (distance < mouse.radius) {
+                    this.x += dx * 0.03;
+                    this.y += dy * 0.03;
+                }
             }
 
             draw() {
-                const centerX = width/2;
-                const centerY = height/2;
-                const radius = params.baseRadius + this.offset;
-
-                const x1 = centerX + Math.cos(this.angle) * radius;
-                const y1 = centerY + Math.sin(this.angle) * radius;
-                const x2 = centerX + Math.cos(this.angle) * (radius + 80);
-                const y2 = centerY + Math.sin(this.angle) * (radius + 80);
-
-                // 创建渐变
-                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-                gradient.addColorStop(0, `hsla(${this.hue}, 100%, 50%, 0.8)`);
-                gradient.addColorStop(1, `hsla(${(this.hue + 90) % 360}, 100%, 50%, 0.2)`);
-
-                // 绘制线条
                 ctx.beginPath();
-                ctx.lineWidth = this.lineWidth;
-                ctx.strokeStyle = gradient;
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.alpha;
+                ctx.fill();
             }
         }
 
-        // 初始化线条
-        const lines = Array.from({ length: params.lineCount }, (_, i) => 
-            new VortexLine((i * 2 * Math.PI) / params.lineCount)
-        );
+        // 初始化粒子
+        function init() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
 
         // 动画循环
-        let time = 0;
         function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            lines.forEach(line => {
-                line.angle += params.rotationSpeed * (mouse.x/width - 0.5);
-                line.update(time);
-                line.draw();
-            });
+            // 添加流光效果
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#ff0080');
+            gradient.addColorStop(1, '#00ff88');
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 0.5;
 
-            time += 16;
+            // 更新和绘制粒子
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // 绘制粒子间连线
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
             requestAnimationFrame(animate);
         }
 
-        // 窗口尺寸调整
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        // 鼠标移动事件
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
         });
 
+        // 窗口大小调整
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        // 启动动画
+        init();
         animate();
+
+        // 添加随机闪光效果
+        setInterval(() => {
+            particles.forEach(particle => {
+                if (Math.random() < 0.1) {
+                    particle.alpha = 1;
+                    setTimeout(() => particle.alpha = 0.5, 50);
+                }
+            });
+        }, 1000);
     </script>
 </body>
 </html>
