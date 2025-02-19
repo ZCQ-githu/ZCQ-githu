@@ -1,0 +1,22 @@
+// 基础样式
+    btn.textContent = text;
+    btn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: ${rightOffset}px;
+        z-index: 9999;
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        background: ${gradient};
+        color: ${textColor};
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        box-shadow: ${generateShadow(gradient.match(/hsl\(.*?\)/)[0])};
+        backdrop-filter: blur(4px);
+        border: 2px solid rgba(255,255,255,0.2);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    `;
