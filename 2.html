@@ -142,187 +142,187 @@
             <span class="tech-tag">python</span>
             <span class="tech-tag">Selenium</span>
             <pre><code class="language-python">
-                import time
-                from datetime import datetime
-                from selenium import webdriver
-                from selenium.webdriver.edge.service import Service
-                from selenium.webdriver.common.by import By
-                from selenium.webdriver.support.ui import WebDriverWait
-                from selenium.webdriver.support import expected_conditions as EC
-                from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import time
+from datetime import datetime
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
                 
-                # 配置部分啾
-                EDGE_DRIVER_PATH = r'D:\\edgedriver_win64\\msedgedriver.exe'  # Microsoft Edge WebDriver路径啾
-                USERNAME = '---'  # 登录用户名啾
-                PASSWORD = '---'  # 登录密码啾
-                LOGIN_URL = 'https://newocs.aihuishou.com/ts-ocs/inspection/operation'  # 登录页面URL啾
-                REFRESH_INTERVAL = 3  # 点我刷新及click_submit1点质检操作间隔啾(秒)
-                WAIT_TIME = 10  # 等待元素的最大时间啾（秒）
-                KHKHK_XBBN = 10  # 检查简拆元素及click_submit2点质检操作间隔啾(秒)
-                DGJSA_JGGJ = 1  # 点击提交等待时间啾（秒）
-                FSHFSFHSI = 60  # 登陆后的等待时间啾（秒）
+# 配置部分啾
+EDGE_DRIVER_PATH = r'D:\\edgedriver_win64\\msedgedriver.exe'  # Microsoft Edge WebDriver路径啾
+USERNAME = '---'  # 登录用户名啾
+PASSWORD = '---'  # 登录密码啾
+LOGIN_URL = 'https://newocs.aihuishou.com/ts-ocs/inspection/operation'  # 登录页面URL啾
+REFRESH_INTERVAL = 3  # 点我刷新及click_submit1点质检操作间隔啾(秒)
+WAIT_TIME = 10  # 等待元素的最大时间啾（秒）
+KHKHK_XBBN = 10  # 检查简拆元素及click_submit2点质检操作间隔啾(秒)
+DGJSA_JGGJ = 1  # 点击提交等待时间啾（秒）
+FSHFSFHSI = 60  # 登陆后的等待时间啾（秒）
                 
-                def get_current_time():
-                    """
-                    获取当前系统时间格式化字符串啾
-                    """
-                    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+def get_current_time():
+    """
+    获取当前系统时间格式化字符串啾
+    """
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 
-                # 在程序启动时获取当前时间啾
-                START_TIME = get_current_time()
+# 在程序启动时获取当前时间啾
+START_TIME = get_current_time()
                 
-                def create_browser_instance():
-                    """
-                    创建Microsoft Edge浏览器实例,添加必要的配置选项啾
-                    """
-                    options = webdriver.EdgeOptions()
-                    options.add_argument('--start-maximized')  # 最大化窗口啾
-                    options.add_argument('--disable-notifications')  # 禁用通知啾
-                    service = Service(executable_path=EDGE_DRIVER_PATH)
-                    return webdriver.Edge(service=service, options=options)
+def create_browser_instance():
+    """
+    创建Microsoft Edge浏览器实例,添加必要的配置选项啾
+    """
+    options = webdriver.EdgeOptions()
+    options.add_argument('--start-maximized')  # 最大化窗口啾
+    options.add_argument('--disable-notifications')  # 禁用通知啾
+    service = Service(executable_path=EDGE_DRIVER_PATH)
+    return webdriver.Edge(service=service, options=options)
                 
-                def wait_for_element(driver, by, value, wait_time=WAIT_TIME):
-                    """
-                    等待目标元素可见并返回该元素啾
-                    """
-                    return WebDriverWait(driver, wait_time).until(
-                        EC.visibility_of_element_located((by, value))
+def wait_for_element(driver, by, value, wait_time=WAIT_TIME):
+    """
+    等待目标元素可见并返回该元素啾
+    """
+    return WebDriverWait(driver, wait_time).until(
+        EC.visibility_of_element_located((by, value))
+    )
+                
+def handle_exception(e, message):
+    """
+    捕获并打印异常信息，包含时间戳啾
+    """
+    print(f"[{get_current_time()}] {message}: {str(e)}")
+                
+def login(driver):
+    """
+    自动完成登录操作，包括用户名和密码输入，并点击登录按钮啾
+    """
+    try:
+        wait_for_element(driver, By.TAG_NAME, 'body', WAIT_TIME)
+        username_input = wait_for_element(driver, By.ID, "username")
+        username_input.clear()  # 清除可能的预填充啾
+        username_input.send_keys(USERNAME)
+                
+        password_input = wait_for_element(driver, By.ID, "password")
+        password_input.clear()  # 清除可能的预填充啾
+        password_input.send_keys(PASSWORD)
+                
+        login_button = WebDriverWait(driver, WAIT_TIME).until(
+            EC.element_to_be_clickable((By.XPATH, "//span[text()='登录']/parent::button"))
+        )
+        login_button.click()
+        print(f"[{get_current_time()}] 登录成功了啾")
+        time.sleep(FSHFSFHSI)
+        return True
+    except Exception as e:
+        handle_exception(e, "登录过程中出现错误了啾")
+        return False
+                
+def loop_click(driver):
+    """
+    不断循环刷新页面，检查条件并执行操作啾
+    """
+    while True:
+        try:
+            while True:
+                try:
+                    refresh_button = WebDriverWait(driver, WAIT_TIME).until(
+                        EC.element_to_be_clickable((By.XPATH, "//span[text()='点我刷新']"))
                     )
+                    refresh_button.click()
+                except:
+                    continue
                 
-                def handle_exception(e, message):
-                    """
-                    捕获并打印异常信息，包含时间戳啾
-                    """
-                    print(f"[{get_current_time()}] {message}: {str(e)}")
+                time.sleep(REFRESH_INTERVAL)
                 
-                def login(driver):
-                    """
-                    自动完成登录操作，包括用户名和密码输入，并点击登录按钮啾
-                    """
-                    try:
-                        wait_for_element(driver, By.TAG_NAME, 'body', WAIT_TIME)
-                        username_input = wait_for_element(driver, By.ID, "username")
-                        username_input.clear()  # 清除可能的预填充啾
-                        username_input.send_keys(USERNAME)
+                try:
+                    normal_gap_radio = driver.find_element(By.XPATH, "//div[text()='部件之间缝隙正常']")
+                    if "active" in normal_gap_radio.get_attribute("class"):
+                        break
+                except NoSuchElementException:
+                    continue
                 
-                        password_input = wait_for_element(driver, By.ID, "password")
-                        password_input.clear()  # 清除可能的预填充啾
-                        password_input.send_keys(PASSWORD)
+            click_submit1(driver)
+        except Exception as e:
+            handle_exception(e, "循环过程中出现错误了啾")
+            time.sleep(REFRESH_INTERVAL)
                 
-                        login_button = WebDriverWait(driver, WAIT_TIME).until(
-                            EC.element_to_be_clickable((By.XPATH, "//span[text()='登录']/parent::button"))
-                        )
-                        login_button.click()
-                        print(f"[{get_current_time()}] 登录成功了啾")
-                        time.sleep(FSHFSFHSI)
-                        return True
-                    except Exception as e:
-                        handle_exception(e, "登录过程中出现错误了啾")
-                        return False
+def click_submit1(driver):
+    """
+    执行第一次提交操作啾
+    """
+    try:
+        submit_button = wait_for_element(driver, By.XPATH, "//span[text()='提交']")
+        submit_button.click()
+        time.sleep(DGJSA_JGGJ)
                 
-                def loop_click(driver):
-                    """
-                    不断循环刷新页面，检查条件并执行操作啾
-                    """
-                    while True:
-                        try:
-                            while True:
-                                try:
-                                    refresh_button = WebDriverWait(driver, WAIT_TIME).until(
-                                        EC.element_to_be_clickable((By.XPATH, "//span[text()='点我刷新']"))
-                                    )
-                                    refresh_button.click()
-                                except:
-                                    continue
+        confirm_button = wait_for_element(driver, By.XPATH, "//span[text()='确 定']")
+        confirm_button.click()
                 
-                                time.sleep(REFRESH_INTERVAL)
+        time.sleep(REFRESH_INTERVAL)
+        element = wait_for_element(driver, By.XPATH, "//a[contains(text(),'质检操作')]")
+        element.click()
                 
-                                try:
-                                    normal_gap_radio = driver.find_element(By.XPATH, "//div[text()='部件之间缝隙正常']")
-                                    if "active" in normal_gap_radio.get_attribute("class"):
-                                        break
-                                except NoSuchElementException:
-                                    continue
+        time.sleep(KHKHK_XBBN)
+        try:
+            simple_dismantle = driver.find_element(By.XPATH, "//span[text()='简拆']")
+            print(f"[{get_current_time()}] 简拆已找到，跳过后续步骤了啾")
+        except NoSuchElementException as e:
+            handle_exception(e, "未找到简拆，点击所有'无以上问题'和'无以上情况'了啾")
+            radio_buttons = driver.find_elements(By.XPATH,
+                "//div[@class='property-radio-item' and (normalize-space(text())='无以上问题' or normalize-space(text())='无以上情况')]")
+            for element in radio_buttons:
+                element.click()
+                print(f"[{get_current_time()}] 点击了'{element.text}'了啾")
+                time.sleep(DGJSA_JGGJ)
                 
-                            click_submit1(driver)
-                        except Exception as e:
-                            handle_exception(e, "循环过程中出现错误了啾")
-                            time.sleep(REFRESH_INTERVAL)
+            refresh_button = wait_for_element(driver, By.XPATH, "//span[text()='点我刷新']")
+            refresh_button.click()
+            print(f"[{get_current_time()}] 点击了'点我刷新'按钮了啾")
+            time.sleep(DGJSA_JGGJ)
+            click_submit2(driver)
+    except Exception as e:
+        handle_exception(e, "点击提交按钮时出现错误了啾")
                 
-                def click_submit1(driver):
-                    """
-                    执行第一次提交操作啾
-                    """
-                    try:
-                        submit_button = wait_for_element(driver, By.XPATH, "//span[text()='提交']")
-                        submit_button.click()
-                        time.sleep(DGJSA_JGGJ)
+def click_submit2(driver):
+    """
+    执行第二次提交操作啾
+    """
+    try:
+        submit_button = wait_for_element(driver, By.XPATH, "//span[text()='提交']")
+        submit_button.click()
+        time.sleep(DGJSA_JGGJ)
                 
-                        confirm_button = wait_for_element(driver, By.XPATH, "//span[text()='确 定']")
-                        confirm_button.click()
+        confirm_button = wait_for_element(driver, By.XPATH, "//span[text()='确 定']")
+        confirm_button.click()
                 
-                        time.sleep(REFRESH_INTERVAL)
-                        element = wait_for_element(driver, By.XPATH, "//a[contains(text(),'质检操作')]")
-                        element.click()
+        time.sleep(KHKHK_XBBN)
+        element = wait_for_element(driver, By.XPATH, "//a[contains(text(),'质检操作')]")
+        element.click()
+    except Exception as e:
+        handle_exception(e, "点击提交按钮时出现错误了啾")
                 
-                        time.sleep(KHKHK_XBBN)
-                        try:
-                            simple_dismantle = driver.find_element(By.XPATH, "//span[text()='简拆']")
-                            print(f"[{get_current_time()}] 简拆已找到，跳过后续步骤了啾")
-                        except NoSuchElementException as e:
-                            handle_exception(e, "未找到简拆，点击所有'无以上问题'和'无以上情况'了啾")
-                            radio_buttons = driver.find_elements(By.XPATH,
-                                "//div[@class='property-radio-item' and (normalize-space(text())='无以上问题' or normalize-space(text())='无以上情况')]")
-                            for element in radio_buttons:
-                                element.click()
-                                print(f"[{get_current_time()}] 点击了'{element.text}'了啾")
-                                time.sleep(DGJSA_JGGJ)
+def main():
+    """
+    主程序逻辑：启动浏览器、登录并运行循环任务啾
+    """
+    print(f"[{START_TIME}] 程序启动，用户: {username}啾")
+    driver = create_browser_instance()
+    driver.get(LOGIN_URL)
                 
-                            refresh_button = wait_for_element(driver, By.XPATH, "//span[text()='点我刷新']")
-                            refresh_button.click()
-                            print(f"[{get_current_time()}] 点击了'点我刷新'按钮了啾")
-                            time.sleep(DGJSA_JGGJ)
-                            click_submit2(driver)
-                    except Exception as e:
-                        handle_exception(e, "点击提交按钮时出现错误了啾")
+    try:
+        if login(driver):
+            loop_click(driver)
+    except Exception as e:
+        handle_exception(e, "主程序发生错误了啾")
+    finally:
+        print(f"[{get_current_time()}] 关闭浏览器了啾")
+        driver.quit()
                 
-                def click_submit2(driver):
-                    """
-                    执行第二次提交操作啾
-                    """
-                    try:
-                        submit_button = wait_for_element(driver, By.XPATH, "//span[text()='提交']")
-                        submit_button.click()
-                        time.sleep(DGJSA_JGGJ)
-                
-                        confirm_button = wait_for_element(driver, By.XPATH, "//span[text()='确 定']")
-                        confirm_button.click()
-                
-                        time.sleep(KHKHK_XBBN)
-                        element = wait_for_element(driver, By.XPATH, "//a[contains(text(),'质检操作')]")
-                        element.click()
-                    except Exception as e:
-                        handle_exception(e, "点击提交按钮时出现错误了啾")
-                
-                def main():
-                    """
-                    主程序逻辑：启动浏览器、登录并运行循环任务啾
-                    """
-                    print(f"[{START_TIME}] 程序启动，用户: {username}啾")
-                    driver = create_browser_instance()
-                    driver.get(LOGIN_URL)
-                
-                    try:
-                        if login(driver):
-                            loop_click(driver)
-                    except Exception as e:
-                        handle_exception(e, "主程序发生错误了啾")
-                    finally:
-                        print(f"[{get_current_time()}] 关闭浏览器了啾")
-                        driver.quit()
-                
-                if __name__ == "__main__":
-                    main()
+if __name__ == "__main__":
+    main()
             </code></pre>
             <p>
                 <strong>使用介绍：</strong><br>
