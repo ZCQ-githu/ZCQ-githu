@@ -196,7 +196,7 @@
     function generateGradient() {
         const baseHue = Math.floor(Math.random() * 360);
         const color1 = `hsl(${baseHue}, 70%, 50%)`;
-        onst color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
+        const color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
         return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
     }
                 
@@ -314,8 +314,7 @@
             window.location.href = '/ts-ocs/inspection/operation';
         }, 2000); // 等待2秒后跳转啾
     }
-})();
-            </code></pre>
+})();       </code></pre>
             <p>
                 <strong>使用介绍：</strong><br>
                 该脚本为提升笔记本初检主观.拆修的验机效率专门定制，其他部门因质检模板不同无法使用啾！<br>
