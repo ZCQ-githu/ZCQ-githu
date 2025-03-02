@@ -26,7 +26,7 @@
 
     /* 山水画边框 */
     .container {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 2rem auto;
         border: 12px solid transparent;
         border-image: url('border/ink-border.png') 30 round;
@@ -132,190 +132,190 @@
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre><code class="language-javascript">
-                // ==UserScript==
-                // @name         笔记本初检主观.拆修半自动化验机增强版脚本-炫彩快捷键版啾
-                // @namespace    https://zhaolegend.github.io/zcq
-                // @version      5.0
-                // @description  提升稳定性，模块化分离，优化延迟与重试逻辑，增强日志输出啾
-                // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
-                // @match        https://newocs.aihuishou.com/inspection/reception
-                // @author       传奇啾
-                // @grant        none
-                // ==/UserScript==
+// ==UserScript==
+// @name         笔记本初检主观.拆修半自动化验机增强版脚本-炫彩快捷键版啾
+// @namespace    https://zhaolegend.github.io/zcq
+// @version      5.0
+// @description  提升稳定性，模块化分离，优化延迟与重试逻辑，增强日志输出啾
+// @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
+// @match        https://newocs.aihuishou.com/inspection/reception
+// @author       传奇啾
+// @grant        none
+// ==/UserScript==
                 
-                (function() {
-                    'use strict';
+(function() {
+    'use strict';
                 
-                    // 配置参数啾
-                    const config = {
-                        intervals: {
-                            submit: 500, // 延迟时间啾
-                        },
-                        maxRetry: 5, // 最大重试次数啾
-                        debug: true, // 是否启用调试模式啾
-                        pulseSpeed: 1000, // 动态按钮脉冲速度啾
-                        keyBindings: {
-                            'ArrowRight': handleQualitySubmission, // 右箭头快捷键触发质检提交啾
-                        },
-                        gradient: {
-                            angle: 135, // 渐变角度啾
-                            variance: 100, // 渐变色相范围啾
-                        }
-                    };
+    // 配置参数啾
+    const config = {
+        intervals: {
+            submit: 500, // 延迟时间啾
+        },
+        maxRetry: 5, // 最大重试次数啾
+        debug: true, // 是否启用调试模式啾
+        pulseSpeed: 1000, // 动态按钮脉冲速度啾
+        keyBindings: {
+            'ArrowRight': handleQualitySubmission, // 右箭头快捷键触发质检提交啾
+        },
+        gradient: {
+            angle: 135, // 渐变角度啾
+            variance: 100, // 渐变色相范围啾
+        }
+    };
                 
-                    // 延迟函数啾
-                    async function delay(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
+    // 延迟函数啾
+    async function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
                 
-                    // 查找包含特定文本的元素并点击啾
-                    async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
-                        for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
-                            const elements = Array.from(document.querySelectorAll(tag));
-                            const target = elements.find(el => el.textContent.includes(text));
+    // 查找包含特定文本的元素并点击啾
+    async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
+        for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
+            const elements = Array.from(document.querySelectorAll(tag));
+            const target = elements.find(el => el.textContent.includes(text));
                 
-                            if (target) {
-                                if (config.debug) console.log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}啾`);
-                                target.click();
-                                return true;
-                            }
+            if (target) {
+                if (config.debug) console.log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}啾`);
+                target.click();
+                return true;
+            }
                 
-                            if (config.debug) console.log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})啾`);
-                            await delay(config.intervals.submit);
-                        }
+            if (config.debug) console.log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})啾`);
+            await delay(config.intervals.submit);
+        }
                 
-                        throw new Error(`❌ 重试失败，未找到元素: [${text}]啾`);
-                    }
+        throw new Error(`❌ 重试失败，未找到元素: [${text}]啾`);
+    }
                 
-                    // 日志与异常处理函数啾
-                    function handleException(error, context = "未知操作") {
-                        console.error(`❌ ${context} 发生错误:`, error.message);
-                        if (config.debug) console.trace();
-                    }
+    // 日志与异常处理函数啾
+    function handleException(error, context = "未知操作") {
+        console.error(`❌ ${context} 发生错误:`, error.message);
+        if (config.debug) console.trace();
+    }
                 
-                    // 生成随机渐变颜色啾
-                    function generateGradient() {
-                        const baseHue = Math.floor(Math.random() * 360);
-                        const color1 = `hsl(${baseHue}, 70%, 50%)`;
-                        const color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
-                        return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
-                    }
+    // 生成随机渐变颜色啾
+    function generateGradient() {
+        const baseHue = Math.floor(Math.random() * 360);
+        const color1 = `hsl(${baseHue}, 70%, 50%)`;
+        onst color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
+        return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
+    }
                 
-                    // 生成动态阴影颜色啾
-                    function generateShadow(color) {
-                        return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
-                    }
+    // 生成动态阴影颜色啾
+    function generateShadow(color) {
+        return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
+    }
                 
-                    // 创建动态按钮啾
-                    function createDynamicButton(text, onClick, rightOffset) {
-                        const btn = document.createElement('button');
-                        const gradient = generateGradient();
-                        const textColor = Math.random() > 0.5 ? '#fff' : '#000';
+    // 创建动态按钮啾
+    function createDynamicButton(text, onClick, rightOffset) {
+        const btn = document.createElement('button');
+        const gradient = generateGradient();
+        const textColor = Math.random() > 0.5 ? '#fff' : '#000';
                 
-                        // 设置按钮基本样式啾
-                        btn.textContent = text;
-                        btn.style.cssText = `
-                            position: fixed;
-                            bottom: 25px;
-                            right: ${rightOffset}px;
-                            z-index: 9999;
-                            width: 150px;
-                            height: 60px;
-                            border-radius: 18px;
-                            background: ${gradient};
-                            color: ${textColor};
-                            border: none;
-                            cursor: pointer;
-                            font-weight: bold;
-                            font-size: 20px;
-                            box-shadow: ${generateShadow(gradient.match(/hsl\(.*?\)/)[0])};
-                            backdrop-filter: blur(4px);
-                            border: 2px solid rgba(255,255,255,0.2);
-                            transform-style: preserve-3d;
-                            perspective: 1000px;
-                        `;
+        // 设置按钮基本样式啾
+        btn.textContent = text;
+        btn.style.cssText = `
+            position: fixed;
+            bottom: 25px;
+            right: ${rightOffset}px;
+            z-index: 9999;
+            width: 150px;
+            height: 60px;
+            border-radius: 18px;
+            background: ${gradient};
+            color: ${textColor};
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: ${generateShadow(gradient.match(/hsl\(.*?\)/)[0])};
+            backdrop-filter: blur(4px);
+            border: 2px solid rgba(255,255,255,0.2);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        `;
                 
-                        // 添加动态类啾
-                        btn.classList.add('dynamic-button');
+        // 添加动态类啾
+        btn.classList.add('dynamic-button');
                 
-                        // 点击事件啾
-                        btn.addEventListener('click', () => {
-                            btn.style.background = generateGradient();
-                            btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
-                            onClick();
-                        });
+        // 点击事件啾
+        btn.addEventListener('click', () => {
+            btn.style.background = generateGradient();
+            btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
+            onClick();
+        });
                 
-                        document.body.appendChild(btn);
-                        return btn;
-                    }
+        document.body.appendChild(btn);
+        return btn;
+    }
                 
-                    /** 核心逻辑函数 **/
-                    // 一键质检逻辑啾
-                    async function handleQualitySubmission() {
-                        try {
-                            // 检查 "简拆" 相关元素啾
-                            const simpleDismantle = Array.from(document.querySelectorAll("span"))
-                                .find(el => el.textContent.includes('简拆'));
-                            if (simpleDismantle) {
-                                console.log('✅ 检测到简拆，跳过其余操作啾');
-                                return;
-                            }
+    /** 核心逻辑函数 **/
+    // 一键质检逻辑啾
+    async function handleQualitySubmission() {
+        try {
+            // 检查 "简拆" 相关元素啾
+            const simpleDismantle = Array.from(document.querySelectorAll("span"))
+                .find(el => el.textContent.includes('简拆'));
+            if (simpleDismantle) {
+                console.log('✅ 检测到简拆，跳过其余操作啾');
+                return;
+            }
                 
-                            // 点击符合条件的单选框啾
-                            const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
-                                el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') || el.textContent.includes('键盘/触控板外观正常') ||
-                                el.textContent.includes('触摸板和按键外观完好') || el.textContent.includes('机身无缝隙') ||
-                                el.textContent.includes('转轴/铰链功能正常') || el.textContent.includes('不缺件') ||
-                                el.textContent.includes('部件之间缝隙正常') ||
-                                el.textContent.includes('无以上')
-                            );
+            // 点击符合条件的单选框啾
+            const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
+                el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') || el.textContent.includes('键盘/触控板外观正常') ||
+                el.textContent.includes('触摸板和按键外观完好') || el.textContent.includes('机身无缝隙') ||
+                el.textContent.includes('转轴/铰链功能正常') || el.textContent.includes('不缺件') ||
+                el.textContent.includes('部件之间缝隙正常') ||
+                el.textContent.includes('无以上')
+            );
                 
-                            for (const radioButton of requiredRadioButtons) {
-                                radioButton.click();
-                                if (config.debug) console.log(`✅ 点击单选框: ${radioButton.textContent}啾`);
-                            }
-                            await delay(config.intervals.submit);
+            for (const radioButton of requiredRadioButtons) {
+                radioButton.click();
+                if (config.debug) console.log(`✅ 点击单选框: ${radioButton.textContent}啾`);
+            }
+            await delay(config.intervals.submit);
                 
-                            // 点击 "点我刷新" 啾
-                            await retryClickElement("button", '点我刷新');
-                            await delay(config.intervals.submit);
+            // 点击 "点我刷新" 啾
+            await retryClickElement("button", '点我刷新');
+            await delay(config.intervals.submit);
                 
-                            // 点击"提交"啾
-                            await retryClickElement("button", '提交');
-                            await delay(config.intervals.submit);
+            // 点击"提交"啾
+            await retryClickElement("button", '提交');
+            await delay(config.intervals.submit);
                 
-                            // 点击 "确定"啾
-                            await retryClickElement("span", '确 定');
+            // 点击 "确定"啾
+            await retryClickElement("span", '确 定');
                 
-                        } catch (error) {
-                            handleException(error, "质检操作处理失败啾");
-                        }
-                    }
+        } catch (error) {
+            handleException(error, "质检操作处理失败啾");
+        }
+    }
                 
-                    // 初始化脚本啾
-                    (function init() {
-                        if (config.debug) console.log('🎮 炫彩快捷键增强版初始化中啾啾啾...');
-                        createDynamicButton('✅一键质检啾', handleQualitySubmission, 130);
+    // 初始化脚本啾
+    (function init() {
+        if (config.debug) console.log('🎮 炫彩快捷键增强版初始化中啾啾啾...');
+        createDynamicButton('✅一键质检啾', handleQualitySubmission, 130);
                 
-                        // 初始化全局快捷键绑定啾
-                        window.addEventListener('keydown', (e) => {
-                            const key = e.key;
-                            if (config.keyBindings[key]
-                                && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-                                e.preventDefault();
-                                config.keyBindings[key]();
-                                if (config.debug) console.log(`⌨️ 快捷键触发: ${key}啾`);
-                            }
-                        }, true);
-                    })();
+        // 初始化全局快捷键绑定啾
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (config.keyBindings[key]
+                && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+                e.preventDefault();
+                config.keyBindings[key]();
+                if (config.debug) console.log(`⌨️ 快捷键触发: ${key}啾`);
+            }
+        }, true);
+    })();
                 
-                    // 在质检接收页面加载后自动跳转到质检操作页面啾
-                    if (window.location.href.includes('inspection/reception') || window.location.href.includes('inspection/receive')) {
-                        setTimeout(() => {
-                            window.location.href = '/ts-ocs/inspection/operation';
-                        }, 2000); // 等待2秒后跳转啾
-                    }
-                })();
+    // 在质检接收页面加载后自动跳转到质检操作页面啾
+    if (window.location.href.includes('inspection/reception') || window.location.href.includes('inspection/receive')) {
+        setTimeout(() => {
+            window.location.href = '/ts-ocs/inspection/operation';
+        }, 2000); // 等待2秒后跳转啾
+    }
+})();
             </code></pre>
             <p>
                 <strong>使用介绍：</strong><br>
