@@ -335,15 +335,7 @@
     /** 核心逻辑函数 **/
     // 一键质检逻辑啾
     async function handleQualitySubmission() {
-        try {
-            // 检查 "简拆" 相关元素啾
-            const simpleDismantle = Array.from(document.querySelectorAll("span"))
-                .find(el => el.textContent.includes('简拆'));
-            if (simpleDismantle) {
-                console.log('✅ 检测到简拆，跳过其余操作啾');
-                return;
-            }
-                
+        try { 
             // 点击符合条件的单选框啾
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
                 el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') || el.textContent.includes('键盘/触控板外观正常') ||
@@ -355,7 +347,9 @@
                 
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
-                if (config.debug) console.log(`✅ 点击单选框: ${radioButton.textContent}啾`);
+                if (config.debug) {
+                    console.log(`✅ 点击单选框: ${radioButton.textContent}啾`);
+                }
             }
             await delay(config.intervals.submit);
                 
