@@ -406,6 +406,46 @@
             </p>
         </article>
 
+        <article class="project-card">
+            <h3>自动刷新</h3>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">Tampermonkey</span>
+            <pre class="language-javascript"><code class="language-javascript">
+// ==UserScript==
+// @name         自动刷新
+// @namespace    --------
+// @version      1.0
+// @description  每3秒自动点击“点我刷新”按钮
+// @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
+// @author       传奇
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // 定义一个函数用于查找并点击元素
+    function clickRefreshButton() {
+        // 获取页面上所有的 span 元素
+        const spanElements = document.getElementsByTagName('span');
+
+        // 遍历所有 span 元素
+        for (let i = 0; i < spanElements.length; i++) {
+            const span = spanElements[i];
+            // 检查 span 元素的文本内容是否包含“点我刷新”
+            if (span.textContent.includes('点我刷新')) {
+                // 如果包含，则触发点击事件
+                span.click();
+                break; // 找到后就跳出循环
+            }
+        }
+    }
+
+    // 每3秒执行一次 clickRefreshButton 函数
+    setInterval(clickRefreshButton, 3000);
+})();
+            </code></pre>
+
         <!-- Python版本展示 -->
         <article class="project-card">
             <h3>笔记本初检主观.拆修半自动化验机增强版代码文件-Python版啾</h3>
