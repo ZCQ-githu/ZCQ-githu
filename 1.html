@@ -407,7 +407,7 @@
         </article>
         <!-- 附加自动刷新 -->
         <article class="project-card">
-            <h3>自动刷新</h3>
+            <h3>附·自动刷新</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
@@ -443,6 +443,74 @@
 
     // 每3秒执行一次 clickRefreshButton 函数
     setInterval(clickRefreshButton, 3000);
+})();
+            </code></pre>
+        </article>
+        <!-- 附加自动登录 -->
+        <article class="project-card">
+            <h3>附·自动登录</h3>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">Tampermonkey</span>
+            <pre class="language-javascript"><code class="language-javascript">
+// ==UserScript==
+// @name         自动登录
+// @namespace    登录助手
+// @version      2.0
+// @description  自动完成SSO登录
+// @author       传奇
+// @match        https://sso.aihuishou.com/cas/login*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // 核心配置
+    const config = {
+        username: 'chuanqi.zhao', // 把''内的账号改成自己的账号
+        password: 'ZCQwan0.', // 把''内的密码改成自己的密码
+        position: {
+            latitude: 31.7117,
+            longitude: 119.9448,
+            accuracy: 15001
+        }
+    };
+
+    // 处理地理位置
+    navigator.geolocation.getCurrentPosition = function(success) {
+        success({
+            coords: {
+                ...config.position,
+                altitude: null,
+                altitudeAccuracy: null,
+                heading: null,
+                speed: null
+            },
+            timestamp: Date.now()
+        });
+    };
+
+    // 登录函数
+    function login() {
+        // 填写表单
+        document.querySelector('#username').value = config.username;
+        document.querySelector('#password').value = config.password;
+
+        // 触发input事件（修复了模板字符串的语法错误）
+        ['username', 'password'].forEach(id => {
+            document.querySelector(`#${id}`).dispatchEvent(new Event('input', { bubbles: true }));
+        });
+
+        // 点击登录按钮
+        document.querySelector('button[type="submit"]').click();
+    }
+
+    // 页面加载完成后执行
+    if (document.readyState === 'complete') {
+        login();
+    } else {
+        window.addEventListener('load', login);
+    }
 })();
             </code></pre>
         </article>
