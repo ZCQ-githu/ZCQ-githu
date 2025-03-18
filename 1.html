@@ -2,14 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>传奇 | 项目1</title>
+    <title>传奇 | 项目手记</title>
     <!-- 只引入一种手写字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <!-- 代码高亮支持 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
     
     <style>
         /* 国风色彩系统 */
@@ -205,18 +204,18 @@
     <div class="container">
         <!-- 标题区 -->
         <header>
-            <h1>传奇·开发项目1</h1>
+            <h1>传奇·代码手记</h1>
             <p class="subtitle">青灯黄卷处 代码生妙花</p>
         </header>
 
         <!-- JavaScript版本展示 -->
         <article class="project-card">
-            <h3>笔记本初检主观.拆修半自动化验机增强版代码文件-JavaScript版啾</h3>
+            <h3>笔记本初检主观.拆修辅助验机增强版代码文件-JavaScript版啾</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         笔记本初检主观.拆修半自动化验机增强版脚本-炫彩快捷键版啾
+// @name         笔记本初检主观.拆修辅助验机增强版脚本-炫彩快捷键版啾
 // @namespace    https://zhaolegend.github.io/zcq
 // @version      5.0
 // @description  提升稳定性，模块化分离，优化延迟与重试逻辑，增强日志输出啾
@@ -225,10 +224,10 @@
 // @author       传奇啾
 // @grant        none
 // ==/UserScript==
-                
+
 (function() {
     'use strict';
-                
+
     // 配置参数啾
     const config = {
         intervals: {
@@ -245,37 +244,37 @@
             variance: 100, // 渐变色相范围啾
         }
     };
-                
+
     // 延迟函数啾
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-                
+
     // 查找包含特定文本的元素并点击啾
     async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const elements = Array.from(document.querySelectorAll(tag));
             const target = elements.find(el => el.textContent.includes(text));
-                
+
             if (target) {
                 if (config.debug) console.log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}啾`);
                 target.click();
                 return true;
             }
-                
+
             if (config.debug) console.log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})啾`);
             await delay(config.intervals.submit);
         }
-                
+
         throw new Error(`❌ 重试失败，未找到元素: [${text}]啾`);
     }
-                
+
     // 日志与异常处理函数啾
     function handleException(error, context = "未知操作") {
         console.error(`❌ ${context} 发生错误:`, error.message);
         if (config.debug) console.trace();
     }
-                
+
     // 生成随机渐变颜色啾
     function generateGradient() {
         const baseHue = Math.floor(Math.random() * 360);
@@ -283,18 +282,18 @@
         const color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
         return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
     }
-                
+
     // 生成动态阴影颜色啾
     function generateShadow(color) {
         return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
     }
-                
+
     // 创建动态按钮啾
     function createDynamicButton(text, onClick, rightOffset) {
         const btn = document.createElement('button');
         const gradient = generateGradient();
         const textColor = Math.random() > 0.5 ? '#fff' : '#000';
-                
+
         // 设置按钮基本样式啾
         btn.textContent = text;
         btn.style.cssText = `
@@ -316,26 +315,27 @@
             border: 2px solid rgba(255,255,255,0.2);
             transform-style: preserve-3d;
             perspective: 1000px;
+            font-family:'Ma Shan Zheng', cursive !important; /* 添加手写体字体 */
         `;
-                
+
         // 添加动态类啾
         btn.classList.add('dynamic-button');
-                
+
         // 点击事件啾
         btn.addEventListener('click', () => {
             btn.style.background = generateGradient();
             btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
             onClick();
         });
-                
+
         document.body.appendChild(btn);
         return btn;
     }
-                
+
     /** 核心逻辑函数 **/
     // 一键质检逻辑啾
     async function handleQualitySubmission() {
-        try { 
+        try {
             // 点击符合条件的单选框啾
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
                 el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') || el.textContent.includes('键盘/触控板外观正常') ||
@@ -344,7 +344,7 @@
                 el.textContent.includes('部件之间缝隙正常') ||
                 el.textContent.includes('无以上')
             );
-                
+
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
                 if (config.debug) {
@@ -352,28 +352,34 @@
                 }
             }
             await delay(config.intervals.submit);
-                
+
             // 点击 "点我刷新" 啾
             await retryClickElement("button", '点我刷新');
             await delay(config.intervals.submit);
-                
+
             // 点击"提交"啾
             await retryClickElement("button", '提交');
             await delay(config.intervals.submit);
-                
+
             // 点击 "确定"啾
             await retryClickElement("span", '确 定');
-                
+
         } catch (error) {
             handleException(error, "质检操作处理失败啾");
         }
     }
-                
+
     // 初始化脚本啾
     (function init() {
+        // 动态加载 Google Fonts
+        const link = document.createElement('link');
+        link.href ="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+
         if (config.debug) console.log('🎮 炫彩快捷键增强版初始化中啾啾啾...');
         createDynamicButton('✅一键质检啾', handleQualitySubmission, 90);
-                
+
         // 初始化全局快捷键绑定啾
         window.addEventListener('keydown', (e) => {
             const key = e.key;
@@ -385,12 +391,19 @@
             }
         }, true);
     })();
-                
+
     // 在质检接收页面加载后自动跳转到质检操作页面啾
     if (window.location.href.includes('inspection/reception') || window.location.href.includes('inspection/receive')) {
-        setTimeout(() => {
-            window.location.href = '/ts-ocs/inspection/operation';
-        }, 2000); // 等待2秒后跳转啾
+        (async () => {
+            try {
+                // 使用 config.intervals.submit 变量作为等待时间
+                await delay(config.intervals.submit);
+                if (config.debug) console.log(`⏳ 等待 ${config.intervals.submit} 毫秒后跳转到质检操作页面啾`);
+                window.location.href = '/ts-ocs/inspection/operation';
+            } catch (error) {
+                handleException(error, "自动跳转失败");
+            }
+        })();
     }
 })();
             </code></pre>
@@ -405,44 +418,231 @@
                 5. 打开目标网站，脚本会自动运行。<br>
             </p>
         </article>
-        <!-- 附加自动刷新 -->
+        <!-- 附加装13前端样式 -->
         <article class="project-card">
-            <h3>附·自动刷新</h3>
+            <h3>附·装13前端代码雨样式</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         自动刷新
-// @namespace    --------
-// @version      1.0
-// @description  每3秒自动点击“点我刷新”按钮
+// @name         运营系统前端网页代码雨样式
+// @namespace    http://tampermonkey.net/
+// @version      2.0
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
-// @author       传奇
-// @grant        none
+// @grant        GM_addStyle
+// @run-at       document-start
+// @author       ZCQ-githu
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // 定义一个函数用于查找并点击元素
-    function clickRefreshButton() {
-        // 获取页面上所有的 span 元素
-        const spanElements = document.getElementsByTagName('span');
+    // 定义自定义元素
+    class MatrixRainElement extends HTMLElement {
+        constructor() {
+            super();
 
-        // 遍历所有 span 元素
-        for (let i = 0; i < spanElements.length; i++) {
-            const span = spanElements[i];
-            // 检查 span 元素的文本内容是否包含“点我刷新”
-            if (span.textContent.includes('点我刷新')) {
-                // 如果包含，则触发点击事件
-                span.click();
-                break; // 找到后就跳出循环
+            // 创建 Shadow DOM
+            this.attachShadow({ mode: 'open' });
+
+            // 创建样式
+            const style = document.createElement('style');
+            style.textContent = `
+                :host {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    pointer-events: none;
+                    z-index: 9999; /* Ensure it's on top */
+                }
+                canvas {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    z-index: 9999; /* Ensure it's on top */
+                    opacity: 0.3; /* Increased transparency */
+                }
+            `;
+
+            // 创建 canvas
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+
+            // 添加到 Shadow DOM
+            this.shadowRoot.appendChild(style);
+            this.shadowRoot.appendChild(this.canvas);
+
+            // 初始化属性
+            this.fontSize = 14;
+            this.chars = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*');
+            this.drops = [];
+
+            // 绑定方法
+            this.animate = this.animate.bind(this);
+            this.handleResize = this.handleResize.bind(this);
+
+            // 添加事件监听
+            window.addEventListener('resize', this.handleResize);
+
+            // 初始化
+            this.initializeCanvas();
+            this.startAnimation();
+        }
+
+        initializeCanvas() {
+            // 设置 canvas 尺寸
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+            this.columns = Math.floor(this.canvas.width / this.fontSize);
+            this.drops = new Array(this.columns).fill(1);
+            console.log(`Canvas initialized: width=${this.canvas.width}, height=${this.canvas.height}`);
+        }
+
+        handleResize() {
+            this.initializeCanvas();
+        }
+
+        draw() {
+            // 创建渐变效果的背景
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // 设置文字样式
+            this.ctx.font = `${this.fontSize}px monospace`;
+
+            // 绘制字符
+            for (let i = 0; i < this.drops.length; i++) {
+                const char = this.chars[Math.floor(Math.random() * this.chars.length)];
+                const x = i * this.fontSize;
+                const y = this.drops[i] * this.fontSize;
+
+                // 随机绿色阴影效果
+                const opacity = Math.random() * 0.3 + 0.2;
+                this.ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+                this.ctx.fillText(char, x, y);
+                console.log(`Drawing char: ${char} at (${x}, ${y})`);
+
+                // 更新位置
+                if (y > this.canvas.height && Math.random() > 0.975) {
+                    this.drops[i] = 0;
+                }
+                this.drops[i]++;
+            }
+        }
+
+        animate() {
+            this.draw();
+            this.animationId = requestAnimationFrame(this.animate);
+            console.log('Animation frame requested', this.animationId);
+        }
+
+        startAnimation() {
+            this.animate();
+        }
+
+        // 当元素被移除时清理
+        disconnectedCallback() {
+            window.removeEventListener('resize', this.handleResize);
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
             }
         }
     }
 
-    // 每3秒执行一次 clickRefreshButton 函数
-    setInterval(clickRefreshButton, 3000);
+    // 注册自定义元素
+    customElements.define('matrix-rain', MatrixRainElement);
+    console.log('MatrixRainElement registered');
+
+    // 设置全局样式
+    const globalStyles = `
+        /* 保护现有UI元素 */
+        .global-header,
+        .ant-layout-sider,
+        .ant-menu,
+        .ant-form-item,
+        .ant-radio-wrapper,
+        .ant-checkbox-wrapper,
+        .ant-select,
+        .ant-input,
+        .ant-btn,
+        .ant-table,
+        micro-app {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 确保控件背景 */
+        .ant-form-item,
+        .ant-radio-wrapper,
+        .ant-checkbox-wrapper,
+        .ant-select-selector,
+        .ant-input,
+        .ant-btn,
+        .ant-table-cell {
+            background-color: white !important;
+        }
+
+        /* 保护图标和文字 */
+        [class^='icon-'],
+        [class*=' icon-'] {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 修改中间单选框的字体颜色为霓虹色并高亮显示
+        .property-radio-item {
+            color: #ff00ff; /* Neon pink */
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+        }*/
+
+        /* 恢复右下角提交按钮的颜色 */
+        .submit-button {
+            background-color: blue !important;
+            color: white !important;
+        }
+    `;
+
+    GM_addStyle(globalStyles);
+
+    // 创建和插入Matrix Rain元素的函数
+    function createMatrixRain() {
+        let matrixRain = document.querySelector('matrix-rain');
+        if (!matrixRain) {
+            matrixRain = document.createElement('matrix-rain');
+            document.body.insertBefore(matrixRain, document.body.firstChild);
+            console.log('MatrixRainElement created and inserted');
+        } else {
+            console.log('MatrixRainElement already exists');
+        }
+    }
+
+    // 监视DOM变化
+    const observer = new MutationObserver((mutations) => {
+        console.log('DOM mutation detected');
+        createMatrixRain();
+    });
+
+    // 开始观察
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+    // 页面加载时初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createMatrixRain);
+    } else {
+        createMatrixRain();
+    }
+
+    // 确保在micro-app加载后也能显示
+    window.addEventListener('load', () => {
+        setTimeout(createMatrixRain, 1000);
+    });
 })();
             </code></pre>
         </article>
@@ -513,243 +713,6 @@
     }
 })();
             </code></pre>
-        </article>
-        <!-- Python版本展示 -->
-        <article class="project-card">
-            <h3>笔记本初检主观.拆修半自动化验机增强版代码文件-Python版啾</h3>
-            <span class="tech-tag">Python</span>
-            <span class="tech-tag">Selenium</span>
-            <pre class="language-python"><code class="language-python">
-import time
-from datetime import datetime
-from selenium import webdriver
-from selenium.webdriver.edge.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
-# 配置部分
-EDGE_DRIVER_PATH = r'D:\\edgedriver_win64\\msedgedriver.exe'  # Microsoft Edge WebDriver路径
-USERNAME = 'chuanqi.zhao'  # 登录用户名
-PASSWORD = 'ZCQwan0.'  # 登录密码
-LOGIN_URL = 'https://newocs.aihuishou.com/ts-ocs/inspection/operation'  # 登录页面URL
-REFRESH_INTERVAL = 3  # 点我刷新和质检操作间隔(秒)
-WAIT_TIME = 30  # 等待元素的最大时间（秒）
-SUBMIT_WAIT_TIME = 1  # 点击提交等待时间（秒）
-WAIT_BETWEEN_SUBMITS = 5  # 两次提交之间的等待时间（秒）
-MAX_RETRIES = 10  # 最大重试次数
-WAIT_AFTER_FAILURE = 180  # 连续失败后的等待时间（秒）
-
-def get_current_time():
-    """
-    获取当前系统时间格式化字符串
-    """
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-# 在程序启动时获取当前时间
-START_TIME = get_current_time()
-
-def create_browser_instance():
-    """
-    创建Microsoft Edge浏览器实例，添加必要的配置选项
-    """
-    options = webdriver.EdgeOptions()
-    options.add_argument('--start-maximized')  # 最大化窗口
-    options.add_argument('--disable-notifications')  # 禁用通知
-    service = Service(executable_path=EDGE_DRIVER_PATH)
-    return webdriver.Edge(service=service, options=options)
-
-def wait_for_element(driver, by, value, wait_time=WAIT_TIME):
-    """
-    等待目标元素可见并返回该元素
-    """
-    return WebDriverWait(driver, wait_time).until(
-        EC.visibility_of_element_located((by, value))
-    )
-
-def handle_exception(e, message):
-    """
-    捕获并打印异常信息，包含时间戳
-    """
-    print(f"[{get_current_time()}] {message}: {str(e)}")
-
-def login(driver):
-    """
-    自动完成登录操作，包括用户名和密码输入，并点击登录按钮
-    """
-    try:
-        wait_for_element(driver, By.TAG_NAME, 'body', WAIT_TIME)
-        username_input = wait_for_element(driver, By.ID, "username")
-        username_input.clear()  # 清除可能的预填充
-        username_input.send_keys(USERNAME)
-
-        password_input = wait_for_element(driver, By.ID, "password")
-        password_input.clear()  # 清除可能的预填充
-        password_input.send_keys(PASSWORD)
-
-        login_button = WebDriverWait(driver, WAIT_TIME).until(
-            EC.element_to_be_clickable((By.XPATH, "//span[text()='登录']/parent::button"))
-        )
-        login_button.click()
-
-        print(f"[{get_current_time()}] 登录成功了！")
-        return True
-    except Exception as e:
-        handle_exception(e, "登录过程中出现错误了")
-        return False
-
-
-def loop_click(driver):
-    """
-    不断循环刷新页面，检查条件并执行操作，支持重试机制和等待时间
-    """
-    retry_count = 0  # 初始化重试计数器
-
-    while True:
-        try:
-            # 尝试点击“点我刷新”按钮
-            try:
-                refresh_button = WebDriverWait(driver, WAIT_TIME).until(
-                    EC.element_to_be_clickable((By.XPATH, "//span[text()='点我刷新']"))
-                )
-                refresh_button.click()
-                print(f"[{get_current_time()}] 点击了 '点我刷新' 按钮")
-                retry_count = 0  # 成功点击后重置重试计数器
-            except (NoSuchElementException, TimeoutException):
-                # 记录失败次数
-                retry_count += 1
-                if retry_count >= MAX_RETRIES:
-                    print(f"[{get_current_time()}] 连续 {MAX_RETRIES} 次点击失败，等待 {WAIT_AFTER_FAILURE // 60} 分钟后重试...")
-                    time.sleep(WAIT_AFTER_FAILURE)
-                    retry_count = 0  # 重置重试计数器
-                continue  # 继续下一次循环
-
-            time.sleep(REFRESH_INTERVAL)
-
-            # 检查条件是否满足
-            try:
-                normal_gap_radio = driver.find_element(By.XPATH, "//div[text()='部件之间缝隙正常']")
-                if "active" in normal_gap_radio.get_attribute("class"):
-                    execute_twice_with_wait(driver)  # 执行两次提交操作
-                    continue  # 继续下一次循环
-                
-            except NoSuchElementException:
-                # 如果未找到目标元素，继续尝试
-                continue
-
-        except Exception as e:
-            handle_exception(e, "刷新过程中出现错误")
-
-def click_submit(driver):
-    """
-    执行一键提交操作
-    """
-    try:
-        # 检查是否存在“简拆”标志
-        try:
-            simple_dismantle = driver.find_element(By.XPATH, "//span[text()='简拆']")
-            print(f"[{get_current_time()}] 发现 '简拆' 标志，跳过后续步骤...")
-            return  # 如果存在“简拆”，直接返回，不执行后续操作
-        except NoSuchElementException:
-            print(f"[{get_current_time()}] 未发现 '简拆' 标志，继续执行单选框点击操作...")
-
-        # 定义需要查找的单选框文本
-        required_buttons = [
-            "键盘印刷字迹清晰，无磨损、掉漆",
-            "触摸板和按键外观完好",
-            "键盘/触控板外观正常",
-            "转轴/铰链功能正常",
-            "机身无缝隙",
-            "不缺件",
-            "无以上"
-        ]
-
-        # 查找并点击每个单选框，每次点击后等待 1 秒
-        for button_text in required_buttons:
-            try:
-                # 查找所有匹配的单选框
-                radio_buttons = driver.find_elements(By.XPATH,
-                    f"//div[contains(@class, 'property-radio-item') and contains(text(), '{button_text}')]")
-
-                if not radio_buttons:
-                    print(f"[{get_current_time()}] 未找到单选框: '{button_text}'")
-                    continue
-
-                # 遍历并使用 JavaScript 点击每个单选框
-                for i, radio_button in enumerate(radio_buttons):
-                    # 使用 JavaScript 执行点击操作
-                    driver.execute_script("arguments[0].click();", radio_button)
-                    print(f"[{get_current_time()}] 使用 JavaScript 点击了第 {i + 1} 个 '{button_text}' 单选框")
-                    time.sleep(0.5)  # 每次点击后等待 0.5 秒
-
-            except NoSuchElementException:
-                print(f"[{get_current_time()}] 未找到单选框: '{button_text}'")
-            except Exception as e:
-                handle_exception(e, f"点击单选框 '{button_text}' 时出现错误")
-
-        # 继续执行其他操作
-        refresh_button = wait_for_element(driver, By.XPATH, "//span[text()='点我刷新']")
-        driver.execute_script("arguments[0].click();", refresh_button)
-        print(f"[{get_current_time()}] 使用 JavaScript 点击了 '点我刷新' 按钮")
-        time.sleep(SUBMIT_WAIT_TIME)
-
-        submit_button = wait_for_element(driver, By.XPATH, "//span[text()='提交']")
-        driver.execute_script("arguments[0].click();", submit_button)
-        print(f"[{get_current_time()}] 使用 JavaScript 点击了 '提交' 按钮")
-
-        confirm_button = wait_for_element(driver, By.XPATH, "//span[text()='确 定']")
-        driver.execute_script("arguments[0].click();", confirm_button)
-        print(f"[{get_current_time()}] 使用 JavaScript 点击了 '确 定' 按钮")
-
-        time.sleep(REFRESH_INTERVAL)
-        element = wait_for_element(driver, By.XPATH, "//a[contains(text(),'质检操作')]")
-        driver.execute_script("arguments[0].click();", element)
-        print(f"[{get_current_time()}] 使用 JavaScript 点击了 '质检操作' 按钮")
-
-    except Exception as e:
-        handle_exception(e, "点击提交按钮时出现错误")
-
-def execute_twice_with_wait(driver):
-    """
-    让 click_submit 执行两次，中间等待指定的秒数。
-    """
-    for i in range(2):  # 执行两次
-        print(f"[{get_current_time()}] 开始第 {i + 1} 次提交操作...")
-        click_submit(driver)  # 调用核心逻辑
-        if i == 0:  # 只有在第一次执行后等待
-            print(f"[{get_current_time()}] 第一次提交完成，等待 {WAIT_BETWEEN_SUBMITS} 秒...")
-            time.sleep(WAIT_BETWEEN_SUBMITS)
-
-def main():
-    """
-    主程序逻辑：启动浏览器、登录并运行循环任务
-    """
-    print(f"[{START_TIME}] 程序启动，用户: {USERNAME}")
-    driver = create_browser_instance()
-    driver.get(LOGIN_URL)
-
-    try:
-        if login(driver):
-            loop_click(driver)
-    except Exception as e:
-        handle_exception(e, "主程序发生错误了")
-    finally:
-        print(f"[{get_current_time()}] 关闭浏览器了")
-        driver.quit()
-
-if __name__ == "__main__":
-    main()
-            </code></pre>
-            <p>
-                <strong>功能介绍：</strong><br>
-                该Python代码实现了与JavaScript版本相同的功能，但需要额外的环境配置：<br>
-                1. 安装Python 3.10及以上版本<br>
-                2. 安装Selenium库：pip install selenium<br>
-                3. 下载Microsoft Edge WebDriver<br>
-                4. 配置环境变量和相关依赖...<br>
-                推荐使用JavaScript版本，因为配置更简单啾！
-            </p>
         </article>
 
         <!-- 页脚 -->
