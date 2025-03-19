@@ -420,12 +420,12 @@
         </article>
         <!-- 附加装13前端样式 -->
         <article class="project-card">
-            <h3>附·装13前端代码雨样式</h3>
+            <h3>附·装13代码雨前端样式覆盖</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         运营系统前端网页代码雨样式
+// @name         代码雨运营系统前端网页样式覆盖
 // @namespace    http://tampermonkey.net/
 // @version      2.0
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
@@ -464,7 +464,7 @@
                     width: 100vw;
                     height: 100vh;
                     z-index: 9999; /* Ensure it's on top */
-                    opacity: 0.3; /* Increased transparency */
+                    opacity: 0.2; /* Increased transparency */
                 }
             `;
 
@@ -508,7 +508,7 @@
 
         draw() {
             // 创建渐变效果的背景
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
             // 设置文字样式
@@ -520,11 +520,10 @@
                 const x = i * this.fontSize;
                 const y = this.drops[i] * this.fontSize;
 
-                // 随机绿色阴影效果
-                const opacity = Math.random() * 0.3 + 0.2;
+                //透明度范围
+                const opacity = Math.random() * (0.8 - 0.3) + 0.3;
                 this.ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
                 this.ctx.fillText(char, x, y);
-                console.log(`Drawing char: ${char} at (${x}, ${y})`);
 
                 // 更新位置
                 if (y > this.canvas.height && Math.random() > 0.975) {
@@ -575,34 +574,10 @@
             z-index: 1;
         }
 
-        /* 确保控件背景 */
-        .ant-form-item,
-        .ant-radio-wrapper,
-        .ant-checkbox-wrapper,
-        .ant-select-selector,
-        .ant-input,
-        .ant-btn,
-        .ant-table-cell {
-            background-color: white !important;
-        }
-
-        /* 保护图标和文字 */
-        [class^='icon-'],
-        [class*=' icon-'] {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* 修改中间单选框的字体颜色为霓虹色并高亮显示
+        /* 修改中间单选框的字体颜色为霓虹色并高亮显示 */
         .property-radio-item {
-            color: #ff00ff; /* Neon pink */
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
-        }*/
-
-        /* 恢复右下角提交按钮的颜色 */
-        .submit-button {
-            background-color: blue !important;
-            color: white !important;
+            color: #00BFFF!important;
+          /*text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;*/
         }
     `;
 
