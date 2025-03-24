@@ -215,67 +215,83 @@
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         笔记本初检主观.拆修辅助验机增强版脚本-炫彩快捷键版啾
+// @name         笔记本验机增强版脚本-炫彩快捷键版
 // @namespace    https://zhaolegend.github.io/zcq
-// @version      5.0
-// @description  提升稳定性，模块化分离，优化延迟与重试逻辑，增强日志输出啾
-// @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
+// @version      10.0
+// @description  整合自动复制粘贴、质检提交、快捷键、动态按钮等功能
+// @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
 // @match        https://newocs.aihuishou.com/inspection/reception
-// @author       传奇啾
+// @author       传奇
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // 配置参数啾
+    const storageKey = "copiedText";
+    let copiedText = localStorage.getItem(storageKey) || '';
+
+    // 统一配置参数
     const config = {
-        intervals: {
-            submit: 500, // 延迟时间啾
-        },
-        maxRetry: 3, // 最大重试次数啾
-        debug: true, // 是否启用调试模式啾
-        pulseSpeed: 1000, // 动态按钮脉冲速度啾
+        interval: 1000, // 统一延迟时间
+        maxRetry: 5, // 最大重试次数
+        debug: true, // 是否启用调试模式
+        pulseSpeed: 1000, // 动态按钮脉冲速度
         keyBindings: {
-            'ArrowRight': handleQualitySubmission, // 右箭头快捷键触发质检提交啾
+            'ArrowDown': handleQualitySubmission, // 下箭头快捷键触发质检提交
         },
         gradient: {
-            angle: 135, // 渐变角度啾
-            variance: 100, // 渐变色相范围啾
+            angle: 135, // 渐变角度
+            variance: 100 // 渐变色相范围
         }
     };
 
-    // 延迟函数啾
+    // 统一日志函数
+    function log(message) {
+        console.log(`[STEP] ${new Date().toLocaleTimeString()} - ${message}`);
+    }
+
+    // 通用函数
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // 查找包含特定文本的元素并点击啾
     async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const elements = Array.from(document.querySelectorAll(tag));
             const target = elements.find(el => el.textContent.includes(text));
 
             if (target) {
-                if (config.debug) console.log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}啾`);
+                log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}`);
                 target.click();
                 return true;
             }
 
-            if (config.debug) console.log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})啾`);
-            await delay(config.intervals.submit);
+            log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})`);
+            await delay(config.interval);
         }
 
-        throw new Error(`❌ 重试失败，未找到元素: [${text}]啾`);
+        throw new Error(`❌ 重试失败，未找到元素: [${text}]`);
     }
 
-    // 日志与异常处理函数啾
+    async function retryElementAction(selector, action, maxRetryTimes = config.maxRetry) {
+        for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
+            const element = document.querySelector(selector);
+            if (element) {
+                action(element);
+                return true;
+            }
+            log(`🔄 查找重试: [${selector}] (${attempt + 1}/${maxRetryTimes})`);
+            await delay(config.interval);
+        }
+        throw new Error(`❌ 重试失败，未找到元素: [${selector}]`);
+    }
+
     function handleException(error, context = "未知操作") {
         console.error(`❌ ${context} 发生错误:`, error.message);
         if (config.debug) console.trace();
     }
 
-    // 生成随机渐变颜色啾
     function generateGradient() {
         const baseHue = Math.floor(Math.random() * 360);
         const color1 = `hsl(${baseHue}, 70%, 50%)`;
@@ -283,18 +299,15 @@
         return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
     }
 
-    // 生成动态阴影颜色啾
     function generateShadow(color) {
         return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
     }
 
-    // 创建动态按钮啾
     function createDynamicButton(text, onClick, rightOffset) {
         const btn = document.createElement('button');
         const gradient = generateGradient();
         const textColor = Math.random() > 0.5 ? '#fff' : '#000';
 
-        // 设置按钮基本样式啾
         btn.textContent = text;
         btn.style.cssText = `
             position: fixed;
@@ -315,13 +328,10 @@
             border: 2px solid rgba(255,255,255,0.2);
             transform-style: preserve-3d;
             perspective: 1000px;
-            font-family:'Ma Shan Zheng', cursive !important; /* 添加手写体字体 */
+            font-family:'Ma Shan Zheng', cursive !important;
         `;
 
-        // 添加动态类啾
         btn.classList.add('dynamic-button');
-
-        // 点击事件啾
         btn.addEventListener('click', () => {
             btn.style.background = generateGradient();
             btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
@@ -332,79 +342,191 @@
         return btn;
     }
 
-    /** 核心逻辑函数 **/
-    // 一键质检逻辑啾
+    // 处理输入框粘贴和回车
+    function handleInputWithStoredText(text) {
+        const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
+        if (input) {
+            log(`找到输入框，开始粘贴内容: ${text}`);
+            input.value = text;
+
+            const inputEvent = new Event('input', { bubbles: true });
+            input.dispatchEvent(inputEvent);
+
+            const keydownEvent = new KeyboardEvent('keydown', {
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                bubbles: true
+            });
+            input.dispatchEvent(keydownEvent);
+
+            localStorage.removeItem(storageKey);
+            log("已清空localStorage并触发回车事件");
+        } else {
+            log("输入框尚未出现，启动监听器等待");
+            const inputObserver = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    Array.from(mutation.addedNodes).forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            const input = node.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
+                            if (input) {
+                                log("检测到输入框，开始粘贴内容");
+                                handleInputWithStoredText(text);
+                                inputObserver.disconnect();
+                            }
+                        }
+                    });
+                });
+            });
+            inputObserver.observe(document.body, { childList: true, subtree: true });
+        }
+    }
+
+    // 监听div变化
+    function setupDivObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                Array.from(mutation.addedNodes).forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const targetDiv = node.querySelector('.custom-title.has-prefix');
+                        if (targetDiv) {
+                            const text = targetDiv.textContent.trim();
+                            if (text) {
+                                log(`检测到新div元素，内容为: ${text}`);
+                                localStorage.setItem(storageKey, text);
+                                log("文本已存储到localStorage");
+                                handleInputWithStoredText(text);
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // 一键质检逻辑
     async function handleQualitySubmission() {
         try {
-            // 点击符合条件的单选框啾
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
-                el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') || el.textContent.includes('键盘/触控板外观正常') ||
-                el.textContent.includes('触摸板和按键外观完好') || el.textContent.includes('机身无缝隙') ||
-                el.textContent.includes('转轴/铰链功能正常') || el.textContent.includes('不缺件') ||
+                el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') ||
+                el.textContent.includes('键盘/触控板外观正常') ||
+                el.textContent.includes('触摸板和按键外观完好') ||
+                el.textContent.includes('机身无缝隙') ||
+                el.textContent.includes('转轴/铰链功能正常') ||
+                el.textContent.includes('不缺件') ||
                 el.textContent.includes('部件之间缝隙正常') ||
                 el.textContent.includes('无以上')
             );
 
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
-                if (config.debug) {
-                    console.log(`✅ 点击单选框: ${radioButton.textContent}啾`);
-                }
+                log(`✅ 点击单选框: ${radioButton.textContent}`);
             }
-            await delay(config.intervals.submit);
+            await delay(config.interval);
 
-            // 点击 "点我刷新" 啾
             await retryClickElement("button", '点我刷新');
-            await delay(config.intervals.submit);
+            await delay(config.interval);
 
-            // 点击"提交"啾
             await retryClickElement("button", '提交');
-            await delay(config.intervals.submit);
+            await delay(config.interval);
 
-            // 点击 "确定"啾
             await retryClickElement("span", '确 定');
+            await delay(config.interval);
 
         } catch (error) {
-            handleException(error, "质检操作处理失败啾");
+            handleException(error, "质检操作处理失败");
         }
     }
 
-    // 初始化脚本啾
+    // 处理质检操作页面初始化
+    function handleOperationPage() {
+        if (config.debug) log('🔧 初始化质检操作页面...');
+        setupDivObserver();
+        createDynamicButton('✅一键质检', handleQualitySubmission, 90);
+    }
+
+    // 初始化脚本
     (function init() {
         // 动态加载 Google Fonts
         const link = document.createElement('link');
-        link.href ="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
+        link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
-        if (config.debug) console.log('🎮 炫彩快捷键增强版初始化中啾啾啾...');
-        createDynamicButton('✅一键质检啾', handleQualitySubmission, 90);
+        if (config.debug) log('🎮 炫彩快捷键增强版初始化中...');
 
-        // 初始化全局快捷键绑定啾
+        // 在质检接收页面加载后自动跳转到质检操作页面
+        if (window.location.href.includes('inspection/reception') ||
+            window.location.href.includes('inspection/receive')) {
+            (async () => {
+                try {
+                    await delay(config.interval);
+                    if (config.debug) log(`⏳ 等待 ${config.interval} 毫秒后跳转到质检操作页面`);
+                    window.location.href = '/ts-ocs/inspection/operation';
+                } catch (error) {
+                    handleException(error, "自动跳转失败");
+                }
+            })();
+        } else {
+            // 在质检操作页面执行初始化操作
+            handleOperationPage();
+        }
+
+        // 初始化全局快捷键绑定
         window.addEventListener('keydown', (e) => {
             const key = e.key;
             if (config.keyBindings[key]
                 && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
                 e.preventDefault();
                 config.keyBindings[key]();
-                if (config.debug) console.log(`⌨️ 快捷键触发: ${key}啾`);
+                if (config.debug) log(`⌨️ 快捷键触发: ${key}`);
             }
         }, true);
-    })();
 
-    // 在质检接收页面加载后自动跳转到质检操作页面啾
-    if (window.location.href.includes('inspection/reception') || window.location.href.includes('inspection/receive')) {
-        (async () => {
-            try {
-                // 使用 config.intervals.submit 变量作为等待时间
-                await delay(config.intervals.submit);
-                if (config.debug) console.log(`⏳ 等待 ${config.intervals.submit} 毫秒后跳转到质检操作页面啾`);
-                window.location.href = '/ts-ocs/inspection/operation';
-            } catch (error) {
-                handleException(error, "自动跳转失败");
+        // 启动div监听
+        setupDivObserver();
+
+        // 在 DOM 加载时执行
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedText = localStorage.getItem(storageKey);
+            if (storedText) {
+                handleInputWithStoredText(storedText);
             }
-        })();
-    }
+        });
+
+        // 监听SPA路由变化
+        window.addEventListener('hashchange', () => {
+            const storedText = localStorage.getItem(storageKey);
+            if (storedText) {
+                handleInputWithStoredText(storedText);
+            }
+        });
+        window.addEventListener('popstate', () => {
+            const storedText = localStorage.getItem(storageKey);
+            if (storedText) {
+                handleInputWithStoredText(storedText);
+            }
+        });
+
+        // 定期检查
+        setInterval(() => {
+            const storedText = localStorage.getItem(storageKey);
+            if (storedText) {
+                handleInputWithStoredText(storedText);
+            }
+
+            const existingDiv = document.querySelector('.custom-title.has-prefix');
+            if (existingDiv) {
+                const text = existingDiv.textContent.trim();
+                if (text) {
+                    localStorage.setItem(storageKey, text);
+                    log("检测到已存在的div元素，内容已更新");
+                }
+            }
+        }, config.interval*3);
+    })();
 })();
             </code></pre>
             <p>
