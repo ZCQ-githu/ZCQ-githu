@@ -217,7 +217,7 @@
 // ==UserScript==
 // @name         笔记本验机增强版脚本-炫彩快捷键版
 // @namespace    https://zhaolegend.github.io/zcq
-// @version      10.0
+// @version      10.1
 // @description  整合自动复制粘贴、质检提交、快捷键、动态按钮等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
 // @match        https://newocs.aihuishou.com/inspection/reception
@@ -233,8 +233,8 @@
 
     // 统一配置参数
     const config = {
-        interval: 1000, // 统一延迟时间
-        maxRetry: 5, // 最大重试次数
+        interval: 500, // 统一延迟时间
+        maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
         pulseSpeed: 1000, // 动态按钮脉冲速度
         keyBindings: {
@@ -268,7 +268,7 @@
             }
 
             log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})`);
-            await delay(config.interval);
+            await delay(config.interval*2);
         }
 
         throw new Error(`❌ 重试失败，未找到元素: [${text}]`);
@@ -282,7 +282,7 @@
                 return true;
             }
             log(`🔄 查找重试: [${selector}] (${attempt + 1}/${maxRetryTimes})`);
-            await delay(config.interval);
+            await delay(config.interval*2);
         }
         throw new Error(`❌ 重试失败，未找到元素: [${selector}]`);
     }
@@ -346,7 +346,7 @@
     function handleInputWithStoredText(text) {
         const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
         if (input) {
-            log(`找到输入框，开始粘贴内容: ${text}`);
+          /*log(`找到输入框，开始粘贴内容: ${text}`);*/
             input.value = text;
 
             const inputEvent = new Event('input', { bubbles: true });
@@ -361,16 +361,16 @@
             input.dispatchEvent(keydownEvent);
 
             localStorage.removeItem(storageKey);
-            log("已清空localStorage并触发回车事件");
+          /*log("已清空localStorage并触发回车事件");*/
         } else {
-            log("输入框尚未出现，启动监听器等待");
+          /*log("输入框尚未出现，启动监听器等待");*/
             const inputObserver = new MutationObserver((mutations) => {
                 mutations.forEach(mutation => {
                     Array.from(mutation.addedNodes).forEach(node => {
                         if (node.nodeType === Node.ELEMENT_NODE) {
                             const input = node.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
                             if (input) {
-                                log("检测到输入框，开始粘贴内容");
+                              /*log("检测到输入框，开始粘贴内容");*/
                                 handleInputWithStoredText(text);
                                 inputObserver.disconnect();
                             }
@@ -392,9 +392,9 @@
                         if (targetDiv) {
                             const text = targetDiv.textContent.trim();
                             if (text) {
-                                log(`检测到新div元素，内容为: ${text}`);
+                              /*log(`检测到新div元素，内容为: ${text}`);*/
                                 localStorage.setItem(storageKey, text);
-                                log("文本已存储到localStorage");
+                              /*log("文本已存储到localStorage");*/
                                 handleInputWithStoredText(text);
                             }
                         }
@@ -522,10 +522,10 @@
                 const text = existingDiv.textContent.trim();
                 if (text) {
                     localStorage.setItem(storageKey, text);
-                    log("检测到已存在的div元素，内容已更新");
+                  /*log("检测到已存在的div元素，内容已更新");*/
                 }
             }
-        }, config.interval*3);
+        }, config.interval*2);
     })();
 })();
             </code></pre>
@@ -542,164 +542,34 @@
         </article>
         <!-- 附加装13前端样式 -->
         <article class="project-card">
-            <h3>附·装13代码雨前端样式覆盖</h3>
+            <h3>附·修改表格字体颜色</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         代码雨运营系统前端网页样式覆盖
+// @name         修改表格字体颜色
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      1.0
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
 // @grant        GM_addStyle
 // @run-at       document-start
-// @author       ZCQ-githu
+// @author       ZCQ-github
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // 定义自定义元素
-    class MatrixRainElement extends HTMLElement {
-        constructor() {
-            super();
-
-            // 创建 Shadow DOM
-            this.attachShadow({ mode: 'open' });
-
-            // 创建样式
-            const style = document.createElement('style');
-            style.textContent = `
-                :host {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    pointer-events: none;
-                    z-index: 9999; /* Ensure it's on top */
-                }
-                canvas {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    z-index: 9999; /* Ensure it's on top */
-                    opacity: 0.2; /* Increased transparency */
-                }
-            `;
-
-            // 创建 canvas
-            this.canvas = document.createElement('canvas');
-            this.ctx = this.canvas.getContext('2d');
-
-            // 添加到 Shadow DOM
-            this.shadowRoot.appendChild(style);
-            this.shadowRoot.appendChild(this.canvas);
-
-            // 初始化属性
-            this.fontSize = 14;
-            this.chars = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*');
-            this.drops = [];
-
-            // 绑定方法
-            this.animate = this.animate.bind(this);
-            this.handleResize = this.handleResize.bind(this);
-
-            // 添加事件监听
-            window.addEventListener('resize', this.handleResize);
-
-            // 初始化
-            this.initializeCanvas();
-            this.startAnimation();
-        }
-
-        initializeCanvas() {
-            // 设置 canvas 尺寸
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-            this.columns = Math.floor(this.canvas.width / this.fontSize);
-            this.drops = new Array(this.columns).fill(1);
-            console.log(`Canvas initialized: width=${this.canvas.width}, height=${this.canvas.height}`);
-        }
-
-        handleResize() {
-            this.initializeCanvas();
-        }
-
-        draw() {
-            // 创建渐变效果的背景
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            // 设置文字样式
-            this.ctx.font = `${this.fontSize}px monospace`;
-
-            // 绘制字符
-            for (let i = 0; i < this.drops.length; i++) {
-                const char = this.chars[Math.floor(Math.random() * this.chars.length)];
-                const x = i * this.fontSize;
-                const y = this.drops[i] * this.fontSize;
-
-                //透明度范围
-                const opacity = Math.random() * (0.8 - 0.3) + 0.3;
-                this.ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
-                this.ctx.fillText(char, x, y);
-
-                // 更新位置
-                if (y > this.canvas.height && Math.random() > 0.975) {
-                    this.drops[i] = 0;
-                }
-                this.drops[i]++;
-            }
-        }
-
-        animate() {
-            this.draw();
-            this.animationId = requestAnimationFrame(this.animate);
-            console.log('Animation frame requested', this.animationId);
-        }
-
-        startAnimation() {
-            this.animate();
-        }
-
-        // 当元素被移除时清理
-        disconnectedCallback() {
-            window.removeEventListener('resize', this.handleResize);
-            if (this.animationId) {
-                cancelAnimationFrame(this.animationId);
-            }
-        }
-    }
-
-    // 注册自定义元素
-    customElements.define('matrix-rain', MatrixRainElement);
-    console.log('MatrixRainElement registered');
-
     // 设置全局样式
     const globalStyles = `
-        /* 保护现有UI元素 */
-        .global-header,
-        .ant-layout-sider,
-        .ant-menu,
-        .ant-form-item,
-        .ant-radio-wrapper,
-        .ant-checkbox-wrapper,
-        .ant-select,
-        .ant-input,
-        .ant-btn,
-        .ant-table,
-        micro-app {
-            position: relative;
-            z-index: 1;
-        }
-
         /* 修改中间单选框的字体颜色为霓虹色并高亮显示 */
         .property-radio-item {
-            color: #00BFFF!important;
-          /*text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;*/
+            color: #198625 !important;
+            text-shadow: 0 0 0.1px #198625;
+        }
+
+        /* 修改表格字体颜色 */
+        .ant-table td, .ant-table th {
+            color: #198625 !important;
         }
     `;
 
@@ -707,19 +577,12 @@
 
     // 创建和插入Matrix Rain元素的函数
     function createMatrixRain() {
-        let matrixRain = document.querySelector('matrix-rain');
-        if (!matrixRain) {
-            matrixRain = document.createElement('matrix-rain');
-            document.body.insertBefore(matrixRain, document.body.firstChild);
-            console.log('MatrixRainElement created and inserted');
-        } else {
-            console.log('MatrixRainElement already exists');
-        }
+      /*console.log('MatrixRainElement creation skipped as it is not needed');*/
     }
 
     // 监视DOM变化
     const observer = new MutationObserver((mutations) => {
-        console.log('DOM mutation detected');
+       /*console.log('DOM mutation detected');*/
         createMatrixRain();
     });
 
