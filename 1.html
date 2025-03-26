@@ -542,14 +542,14 @@
         </article>
         <!-- 附加装13前端样式 -->
         <article class="project-card">
-            <h3>附·修改表格字体颜色</h3>
+            <h3>附·修改表格字体颜色和占位符颜色（随机）</h3>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         修改表格字体颜色
+// @name         修改表格字体颜色和占位符颜色（随机）
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
 // @grant        GM_addStyle
 // @run-at       document-start
@@ -559,49 +559,88 @@
 (function() {
     'use strict';
 
-    // 设置全局样式
+    // 生成随机颜色函数（HSL模式）
+    function getRandomColor() {
+        const hue = Math.floor(Math.random() * 360);
+        return `hsl(${hue}, 70%, 50%)`;
+    }
+
+    // 为不同元素生成独立随机颜色
+    const colors = {
+        radio: getRandomColor(),
+        table: getRandomColor(),
+        inputText: getRandomColor(),
+        placeholder: getRandomColor()
+    };
+
+    // 构建动态样式
     const globalStyles = `
-        /* 修改中间单选框的字体颜色为霓虹色并高亮显示 */
+        /* 单选框样式 */
         .property-radio-item {
-            color: #198625 !important;
-            text-shadow: 0 0 0.1px #198625;
+            color: ${colors.radio} !important;
+            text-shadow: 0 0 0.1px ${colors.radio};
         }
 
-        /* 修改表格字体颜色 */
+        /* 表格样式 */
         .ant-table td, .ant-table th {
-            color: #198625 !important;
+            color: ${colors.table} !important;
+        }
+
+        /* 输入框占位符样式 */
+        .inspection-operation .ant-input.css-1qg60k0.ant-input-outlined::placeholder {
+            color: ${colors.placeholder} !important;
         }
     `;
 
     GM_addStyle(globalStyles);
 
-    // 创建和插入Matrix Rain元素的函数
-    function createMatrixRain() {
-      /*console.log('MatrixRainElement creation skipped as it is not needed');*/
+    // 动态应用样式的函数
+    function applyDynamicStyles() {
+        const inputElements = document.querySelectorAll('.inspection-operation .ant-input.css-1qg60k0.ant-input-outlined');
+        inputElements.forEach((input) => {
+            input.style.color = colors.inputText; // 应用独立随机颜色
+        });
     }
 
-    // 监视DOM变化
+    // DOM观察器配置
     const observer = new MutationObserver((mutations) => {
-       /*console.log('DOM mutation detected');*/
-        createMatrixRain();
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 处理动态加载的输入框
+                        if (node.matches && node.matches('.inspection-operation .ant-input.css-1qg60k0.ant-input-outlined')) {
+                            node.style.color = colors.inputText;
+                        }
+                    }
+                });
+            }
+        });
+        applyDynamicStyles(); // 确保所有元素都应用样式
     });
 
-    // 开始观察
+    // 开始观察DOM变化
     observer.observe(document.documentElement, {
         childList: true,
         subtree: true
     });
 
-    // 页面加载时初始化
+    // 初始化逻辑
+    const initialize = () => {
+        setTimeout(applyDynamicStyles, 500);
+        setTimeout(applyDynamicStyles, 2000); // 双重保障动态内容
+    };
+
+    // 页面加载状态处理
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', createMatrixRain);
+        document.addEventListener('DOMContentLoaded', initialize);
     } else {
-        createMatrixRain();
+        initialize();
     }
 
-    // 确保在micro-app加载后也能显示
+    // 微应用加载保障
     window.addEventListener('load', () => {
-        setTimeout(createMatrixRain, 1000);
+        setTimeout(applyDynamicStyles, 1000);
     });
 })();
             </code></pre>
