@@ -444,7 +444,7 @@
     function handleOperationPage() {
         if (config.debug) log('🔧 初始化质检操作页面...');
         setupDivObserver();
-        createDynamicButton('点我发财', handleQualitySubmission, 70);
+        createDynamicButton('一键质检', handleQualitySubmission, 70);
     }
 
     // 初始化脚本
@@ -525,7 +525,7 @@
                   /*log("检测到已存在的div元素，内容已更新");*/
                 }
             }
-        }, config.interval*2);
+        }, config.interval*3);
     })();
 })();
             </code></pre>
@@ -539,184 +539,10 @@
                 4. 打开浏览器扩展的开发者模式。<br>
                 5. 打开目标网站，脚本会自动运行。<br>
             </p>
-        </article>
-        <!-- 附加装13前端样式 -->
-        <article class="project-card">
-            <h3>附·修改表格字体颜色和占位符颜色（随机）</h3>
-            <span class="tech-tag">JavaScript</span>
-            <span class="tech-tag">Tampermonkey</span>
-            <pre class="language-javascript"><code class="language-javascript">
-// ==UserScript==
-// @name         修改表格字体颜色和占位符颜色（随机）
-// @namespace    http://tampermonkey.net/
-// @version      1.1
-// @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation
-// @grant        GM_addStyle
-// @run-at       document-start
-// @author       ZCQ-github
-// ==/UserScript==
-
-(function() {
-    'use strict';
-
-    // 生成随机颜色函数（HSL模式）
-    function getRandomColor() {
-        const hue = Math.floor(Math.random() * 360);
-        return `hsl(${hue}, 70%, 50%)`;
-    }
-
-    // 为不同元素生成独立随机颜色
-    const colors = {
-        radio: getRandomColor(),
-        table: getRandomColor(),
-        inputText: getRandomColor(),
-        placeholder: getRandomColor()
-    };
-
-    // 构建动态样式
-    const globalStyles = `
-        /* 单选框样式 */
-        .property-radio-item {
-            color: ${colors.radio} !important;
-            text-shadow: 0 0 0.1px ${colors.radio};
-        }
-
-        /* 表格样式 */
-        .ant-table td, .ant-table th {
-            color: ${colors.table} !important;
-        }
-
-        /* 输入框占位符样式 */
-        .inspection-operation .ant-input.css-1qg60k0.ant-input-outlined::placeholder {
-            color: ${colors.placeholder} !important;
-        }
-    `;
-
-    GM_addStyle(globalStyles);
-
-    // 动态应用样式的函数
-    function applyDynamicStyles() {
-        const inputElements = document.querySelectorAll('.inspection-operation .ant-input.css-1qg60k0.ant-input-outlined');
-        inputElements.forEach((input) => {
-            input.style.color = colors.inputText; // 应用独立随机颜色
-        });
-    }
-
-    // DOM观察器配置
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        // 处理动态加载的输入框
-                        if (node.matches && node.matches('.inspection-operation .ant-input.css-1qg60k0.ant-input-outlined')) {
-                            node.style.color = colors.inputText;
-                        }
-                    }
-                });
-            }
-        });
-        applyDynamicStyles(); // 确保所有元素都应用样式
-    });
-
-    // 开始观察DOM变化
-    observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
-
-    // 初始化逻辑
-    const initialize = () => {
-        setTimeout(applyDynamicStyles, 500);
-        setTimeout(applyDynamicStyles, 2000); // 双重保障动态内容
-    };
-
-    // 页面加载状态处理
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-    } else {
-        initialize();
-    }
-
-    // 微应用加载保障
-    window.addEventListener('load', () => {
-        setTimeout(applyDynamicStyles, 1000);
-    });
-})();
-            </code></pre>
-        </article>
-        <!-- 附加自动登录 -->
-        <article class="project-card">
-            <h3>附·自动登录</h3>
-            <span class="tech-tag">JavaScript</span>
-            <span class="tech-tag">Tampermonkey</span>
-            <pre class="language-javascript"><code class="language-javascript">
-// ==UserScript==
-// @name         自动登录
-// @namespace    登录助手
-// @version      2.0
-// @description  自动完成SSO登录
-// @author       传奇
-// @match        https://sso.aihuishou.com/cas/login*
-// @grant        none
-// ==/UserScript==
-
-(function() {
-    'use strict';
-
-    // 核心配置
-    const config = {
-        username: 'chuanqi.zhao', // 把''内的账号改成自己的账号
-        password: 'ZCQwan0.', // 把''内的密码改成自己的密码
-        position: {
-            latitude: 31.7117,
-            longitude: 119.9448,
-            accuracy: 15001
-        }
-    };
-
-    // 处理地理位置
-    navigator.geolocation.getCurrentPosition = function(success) {
-        success({
-            coords: {
-                ...config.position,
-                altitude: null,
-                altitudeAccuracy: null,
-                heading: null,
-                speed: null
-            },
-            timestamp: Date.now()
-        });
-    };
-
-    // 登录函数
-    function login() {
-        // 填写表单
-        document.querySelector('#username').value = config.username;
-        document.querySelector('#password').value = config.password;
-
-        // 触发input事件（修复了模板字符串的语法错误）
-        ['username', 'password'].forEach(id => {
-            document.querySelector(`#${id}`).dispatchEvent(new Event('input', { bubbles: true }));
-        });
-
-        // 点击登录按钮
-        document.querySelector('button[type="submit"]').click();
-    }
-
-    // 页面加载完成后执行
-    if (document.readyState === 'complete') {
-        login();
-    } else {
-        window.addEventListener('load', login);
-    }
-})();
-            </code></pre>
-        </article>
 
         <!-- 页脚 -->
         <footer class="footer">
-            <p>最后更新时间：2025-03-04 12:32:01 UTC</p>
+            <p>最后更新时间：2025-04-04 16:32:03 UTC</p>
             <p>作者：ZCQ-github</p>
         </footer>
     </div>
