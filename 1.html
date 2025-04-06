@@ -215,65 +215,52 @@
             <span class="tech-tag">Tampermonkey</span>
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
-// @name         笔记本验机增强版脚本-炫彩快捷键版
+// @name         笔记本验机增强版脚本-炫彩版
 // @namespace    https://zhaolegend.github.io/zcq
-// @version      10.1
-// @description  整合自动复制粘贴、质检提交、快捷键、动态按钮等功能
+// @version      10.0
+// @description  整合自动复制粘贴、质检提交、动态按钮等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
 // @match        https://newocs.aihuishou.com/inspection/reception
 // @author       传奇
 // @grant        none
 // ==/UserScript==
-
 (function() {
     'use strict';
-
     const storageKey = "copiedText";
     let copiedText = localStorage.getItem(storageKey) || '';
-
     // 统一配置参数
     const config = {
         interval: 500, // 统一延迟时间
         maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
         pulseSpeed: 1000, // 动态按钮脉冲速度
-        keyBindings: {
-            'ArrowDown': handleQualitySubmission, // 下箭头快捷键触发质检提交
-        },
         gradient: {
             angle: 135, // 渐变角度
             variance: 100 // 渐变色相范围
         }
     };
-
     // 统一日志函数
     function log(message) {
         console.log(`[STEP] ${new Date().toLocaleTimeString()} - ${message}`);
     }
-
     // 通用函数
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-
     async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const elements = Array.from(document.querySelectorAll(tag));
             const target = elements.find(el => el.textContent.includes(text));
-
             if (target) {
                 log(`✅ 成功找到并点击元素: [${text}] 尝试次数: ${attempt + 1}`);
                 target.click();
                 return true;
             }
-
             log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})`);
             await delay(config.interval*2);
         }
-
         throw new Error(`❌ 重试失败，未找到元素: [${text}]`);
     }
-
     async function retryElementAction(selector, action, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const element = document.querySelector(selector);
@@ -286,28 +273,23 @@
         }
         throw new Error(`❌ 重试失败，未找到元素: [${selector}]`);
     }
-
     function handleException(error, context = "未知操作") {
         console.error(`❌ ${context} 发生错误:`, error.message);
         if (config.debug) console.trace();
     }
-
     function generateGradient() {
         const baseHue = Math.floor(Math.random() * 360);
         const color1 = `hsl(${baseHue}, 70%, 50%)`;
         const color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
         return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
     }
-
     function generateShadow(color) {
         return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
     }
-
     function createDynamicButton(text, onClick, rightOffset) {
         const btn = document.createElement('button');
         const gradient = generateGradient();
         const textColor = Math.random() > 0.5 ? '#fff' : '#000';
-
         btn.textContent = text;
         btn.style.cssText = `
             position: fixed;
@@ -330,28 +312,23 @@
             perspective: 1000px;
             font-family:'Ma Shan Zheng', cursive !important;
         `;
-
         btn.classList.add('dynamic-button');
         btn.addEventListener('click', () => {
             btn.style.background = generateGradient();
             btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
             onClick();
         });
-
         document.body.appendChild(btn);
         return btn;
     }
-
     // 处理输入框粘贴和回车
     function handleInputWithStoredText(text) {
         const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
         if (input) {
           /*log(`找到输入框，开始粘贴内容: ${text}`);*/
             input.value = text;
-
             const inputEvent = new Event('input', { bubbles: true });
             input.dispatchEvent(inputEvent);
-
             const keydownEvent = new KeyboardEvent('keydown', {
                 key: 'Enter',
                 code: 'Enter',
@@ -359,7 +336,6 @@
                 bubbles: true
             });
             input.dispatchEvent(keydownEvent);
-
             localStorage.removeItem(storageKey);
           /*log("已清空localStorage并触发回车事件");*/
         } else {
@@ -381,7 +357,6 @@
             inputObserver.observe(document.body, { childList: true, subtree: true });
         }
     }
-
     // 监听div变化
     function setupDivObserver() {
         const observer = new MutationObserver((mutations) => {
@@ -402,10 +377,8 @@
                 });
             });
         });
-
         observer.observe(document.body, { childList: true, subtree: true });
     }
-
     // 一键质检逻辑
     async function handleQualitySubmission() {
         try {
@@ -419,34 +392,27 @@
                 el.textContent.includes('部件之间缝隙正常') ||
                 el.textContent.includes('无以上')
             );
-
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
                 log(`✅ 点击单选框: ${radioButton.textContent}`);
             }
             await delay(config.interval);
-
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
-
             await retryClickElement("button", '提交');
             await delay(config.interval);
-
             await retryClickElement("span", '确 定');
             await delay(config.interval);
-
         } catch (error) {
             handleException(error, "质检操作处理失败");
         }
     }
-
     // 处理质检操作页面初始化
     function handleOperationPage() {
         if (config.debug) log('🔧 初始化质检操作页面...');
         setupDivObserver();
-        createDynamicButton('一键质检', handleQualitySubmission, 70);
+        createDynamicButton('点我发财', handleQualitySubmission, 70);
     }
-
     // 初始化脚本
     (function init() {
         // 动态加载 Google Fonts
@@ -454,9 +420,7 @@
         link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
         link.rel = 'stylesheet';
         document.head.appendChild(link);
-
         if (config.debug) log('🎮 炫彩快捷键增强版初始化中...');
-
         // 在质检接收页面加载后自动跳转到质检操作页面
         if (window.location.href.includes('inspection/reception') ||
             window.location.href.includes('inspection/receive')) {
@@ -473,21 +437,8 @@
             // 在质检操作页面执行初始化操作
             handleOperationPage();
         }
-
-        // 初始化全局快捷键绑定
-        window.addEventListener('keydown', (e) => {
-            const key = e.key;
-            if (config.keyBindings[key]
-                && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-                e.preventDefault();
-                config.keyBindings[key]();
-                if (config.debug) log(`⌨️ 快捷键触发: ${key}`);
-            }
-        }, true);
-
         // 启动div监听
         setupDivObserver();
-
         // 在 DOM 加载时执行
         document.addEventListener('DOMContentLoaded', () => {
             const storedText = localStorage.getItem(storageKey);
@@ -495,7 +446,6 @@
                 handleInputWithStoredText(storedText);
             }
         });
-
         // 监听SPA路由变化
         window.addEventListener('hashchange', () => {
             const storedText = localStorage.getItem(storageKey);
@@ -509,14 +459,12 @@
                 handleInputWithStoredText(storedText);
             }
         });
-
         // 定期检查
         setInterval(() => {
             const storedText = localStorage.getItem(storageKey);
             if (storedText) {
                 handleInputWithStoredText(storedText);
             }
-
             const existingDiv = document.querySelector('.custom-title.has-prefix');
             if (existingDiv) {
                 const text = existingDiv.textContent.trim();
