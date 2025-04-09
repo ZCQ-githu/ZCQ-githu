@@ -224,10 +224,13 @@
 // @author       传奇
 // @grant        none
 // ==/UserScript==
+
 (function() {
     'use strict';
+
     const storageKey = "copiedText";
     let copiedText = localStorage.getItem(storageKey) || '';
+
     // 统一配置参数
     const config = {
         interval: 500, // 统一延迟时间
@@ -239,14 +242,17 @@
             variance: 100 // 渐变色相范围
         }
     };
+
     // 统一日志函数
     function log(message) {
         console.log(`[STEP] ${new Date().toLocaleTimeString()} - ${message}`);
     }
+
     // 通用函数
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
     async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const elements = Array.from(document.querySelectorAll(tag));
@@ -257,10 +263,11 @@
                 return true;
             }
             log(`🔄 查找重试: [${text}] (${attempt + 1}/${maxRetryTimes})`);
-            await delay(config.interval*2);
+            await delay(config.interval * 2);
         }
         throw new Error(`❌ 重试失败，未找到元素: [${text}]`);
     }
+
     async function retryElementAction(selector, action, maxRetryTimes = config.maxRetry) {
         for (let attempt = 0; attempt < maxRetryTimes; attempt++) {
             const element = document.querySelector(selector);
@@ -269,23 +276,27 @@
                 return true;
             }
             log(`🔄 查找重试: [${selector}] (${attempt + 1}/${maxRetryTimes})`);
-            await delay(config.interval*2);
+            await delay(config.interval * 2);
         }
         throw new Error(`❌ 重试失败，未找到元素: [${selector}]`);
     }
+
     function handleException(error, context = "未知操作") {
         console.error(`❌ ${context} 发生错误:`, error.message);
         if (config.debug) console.trace();
     }
+
     function generateGradient() {
         const baseHue = Math.floor(Math.random() * 360);
         const color1 = `hsl(${baseHue}, 70%, 50%)`;
         const color2 = `hsl(${(baseHue + config.gradient.variance) % 360}, 85%, 45%)`;
         return `linear-gradient(${config.gradient.angle}deg, ${color1}, ${color2})`;
     }
+
     function generateShadow(color) {
         return `0 4px 15px ${color.replace(/hsl\((.*)\)/, 'hsla($1,0.3)')}`;
     }
+
     function createDynamicButton(text, onClick, rightOffset) {
         const btn = document.createElement('button');
         const gradient = generateGradient();
@@ -321,81 +332,75 @@
         document.body.appendChild(btn);
         return btn;
     }
-    // 处理输入框粘贴和回车
-    function handleInputWithStoredText(text) {
-        const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
-        if (input) {
-          /*log(`找到输入框，开始粘贴内容: ${text}`);*/
-            input.value = text;
-            const inputEvent = new Event('input', { bubbles: true });
-            input.dispatchEvent(inputEvent);
-            const keydownEvent = new KeyboardEvent('keydown', {
-                key: 'Enter',
-                code: 'Enter',
-                keyCode: 13,
-                bubbles: true
-            });
-            input.dispatchEvent(keydownEvent);
-            localStorage.removeItem(storageKey);
-          /*log("已清空localStorage并触发回车事件");*/
-        } else {
-          /*log("输入框尚未出现，启动监听器等待");*/
-            const inputObserver = new MutationObserver((mutations) => {
-                mutations.forEach(mutation => {
-                    Array.from(mutation.addedNodes).forEach(node => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            const input = node.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
-                            if (input) {
-                              /*log("检测到输入框，开始粘贴内容");*/
-                                handleInputWithStoredText(text);
-                                inputObserver.disconnect();
-                            }
-                        }
-                    });
-                });
-            });
-            inputObserver.observe(document.body, { childList: true, subtree: true });
-        }
-    }
-    // 监听div变化
-    function setupDivObserver() {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach(mutation => {
-                Array.from(mutation.addedNodes).forEach(node => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const targetDiv = node.querySelector('.custom-title.has-prefix');
-                        if (targetDiv) {
-                            const text = targetDiv.textContent.trim();
-                            if (text) {
-                              /*log(`检测到新div元素，内容为: ${text}`);*/
-                                localStorage.setItem(storageKey, text);
-                              /*log("文本已存储到localStorage");*/
-                                handleInputWithStoredText(text);
-                            }
-                        }
-                    }
-                });
-            });
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+
     // 一键质检逻辑
     async function handleQualitySubmission() {
         try {
+            // 检查 localStorage 是否有存储的数据
+            try {
+                const storedText = localStorage.getItem(storageKey);
+                if (storedText) {
+                    log("检测到 localStorage 存储的数据，准备粘贴到输入框...");
+                    const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
+                    if (input) {
+                        input.value = storedText;
+                        const inputEvent = new Event('input', { bubbles: true });
+                        input.dispatchEvent(inputEvent);
+                        const keydownEvent = new KeyboardEvent('keydown', {
+                            key: 'Enter',
+                            code: 'Enter',
+                            keyCode: 13,
+                            bubbles: true
+                        });
+                        input.dispatchEvent(keydownEvent);
+                        log(`已粘贴存储的数据: ${storedText} 并触发回车事件`);
+
+                        // 清空 localStorage 储存的数据
+                        localStorage.removeItem(storageKey);
+                        log("已清空 localStorage 储存的数据");
+                    } else {
+                        log("输入框尚未加载，无法粘贴数据");
+                    }
+                } else {
+                    log("未检测到 localStorage 存储的数据，尝试复制 div 元素内容...");
+                    const existingDiv = document.querySelector('.custom-title.has-prefix');
+                    if (existingDiv) {
+                        const text = existingDiv.textContent.trim();
+                        if (text) {
+                            localStorage.setItem(storageKey, text);
+                            log(`已复制 div 内容: ${text} 并存储到 localStorage`);
+                        } else {
+                            log("未找到有效的 div 元素内容");
+                        }
+                    } else {
+                        log("未找到目标 div 元素");
+                    }
+                }
+
+                // 添加延迟
+                await delay(config.interval*3);
+            } catch (error) {
+                // 捕获错误并跳过，确保代码不会中断
+                log(`⚠️ 检查 localStorage 或处理数据时发生错误: ${error.message}`);
+            }
+
+            // 点击质检相关的单选框
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
                 el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') ||
                 el.textContent.includes('键盘/触控板外观正常') ||
                 el.textContent.includes('触摸板和按键外观完好') ||
-                el.textContent.includes('机身无缝隙') ||
                 el.textContent.includes('转轴/铰链功能正常') ||
-                el.textContent.includes('不缺件') ||
                 el.textContent.includes('部件之间缝隙正常') ||
+                el.textContent.includes('机身无缝隙') ||
+                el.textContent.includes('硬盘正常') ||
+                el.textContent.includes('不缺件') ||
                 el.textContent.includes('无以上')
             );
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
                 log(`✅ 点击单选框: ${radioButton.textContent}`);
             }
+
             await delay(config.interval);
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
@@ -407,12 +412,13 @@
             handleException(error, "质检操作处理失败");
         }
     }
+
     // 处理质检操作页面初始化
     function handleOperationPage() {
         if (config.debug) log('🔧 初始化质检操作页面...');
-        setupDivObserver();
         createDynamicButton('点我发财', handleQualitySubmission, 70);
     }
+
     // 初始化脚本
     (function init() {
         // 动态加载 Google Fonts
@@ -420,13 +426,15 @@
         link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
         link.rel = 'stylesheet';
         document.head.appendChild(link);
+
         if (config.debug) log('🎮 炫彩快捷键增强版初始化中...');
+
         // 在质检接收页面加载后自动跳转到质检操作页面
         if (window.location.href.includes('inspection/reception') ||
             window.location.href.includes('inspection/receive')) {
             (async () => {
                 try {
-                    await delay(config.interval);
+                    await delay(config.interval*2);
                     if (config.debug) log(`⏳ 等待 ${config.interval} 毫秒后跳转到质检操作页面`);
                     window.location.href = '/ts-ocs/inspection/operation';
                 } catch (error) {
@@ -437,43 +445,6 @@
             // 在质检操作页面执行初始化操作
             handleOperationPage();
         }
-        // 启动div监听
-        setupDivObserver();
-        // 在 DOM 加载时执行
-        document.addEventListener('DOMContentLoaded', () => {
-            const storedText = localStorage.getItem(storageKey);
-            if (storedText) {
-                handleInputWithStoredText(storedText);
-            }
-        });
-        // 监听SPA路由变化
-        window.addEventListener('hashchange', () => {
-            const storedText = localStorage.getItem(storageKey);
-            if (storedText) {
-                handleInputWithStoredText(storedText);
-            }
-        });
-        window.addEventListener('popstate', () => {
-            const storedText = localStorage.getItem(storageKey);
-            if (storedText) {
-                handleInputWithStoredText(storedText);
-            }
-        });
-        // 定期检查
-        setInterval(() => {
-            const storedText = localStorage.getItem(storageKey);
-            if (storedText) {
-                handleInputWithStoredText(storedText);
-            }
-            const existingDiv = document.querySelector('.custom-title.has-prefix');
-            if (existingDiv) {
-                const text = existingDiv.textContent.trim();
-                if (text) {
-                    localStorage.setItem(storageKey, text);
-                  /*log("检测到已存在的div元素，内容已更新");*/
-                }
-            }
-        }, config.interval*3);
     })();
 })();
             </code></pre>
