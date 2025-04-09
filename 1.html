@@ -333,116 +333,122 @@
         return btn;
     }
 
-    // 一键质检逻辑
+    // 一键质检逻辑（已按要求修改）
     async function handleQualitySubmission() {
         try {
-            // 检查 localStorage 是否有存储的数据
-            try {
-                const storedText = localStorage.getItem(storageKey);
-                if (storedText) {
-                    log("检测到 localStorage 存储的数据，准备粘贴到输入框...");
-                    const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
-                    if (input) {
-                        input.value = storedText;
-                        const inputEvent = new Event('input', { bubbles: true });
-                        input.dispatchEvent(inputEvent);
-                        const keydownEvent = new KeyboardEvent('keydown', {
-                            key: 'Enter',
-                            code: 'Enter',
-                            keyCode: 13,
-                            bubbles: true
-                        });
-                        input.dispatchEvent(keydownEvent);
-                        log(`已粘贴存储的数据: ${storedText} 并触发回车事件`);
+            const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
+            let storedText = localStorage.getItem(storageKey);
 
-                        // 清空 localStorage 储存的数据
-                        localStorage.removeItem(storageKey);
-                        log("已清空 localStorage 储存的数据");
-                    } else {
-                        log("输入框尚未加载，无法粘贴数据");
-                    }
-                } else {
-                    log("未检测到 localStorage 存储的数据，尝试复制 div 元素内容...");
-                    const existingDiv = document.querySelector('.custom-title.has-prefix');
-                    if (existingDiv) {
-                        const text = existingDiv.textContent.trim();
-                        if (text) {
-                            localStorage.setItem(storageKey, text);
-                            log(`已复制 div 内容: ${text} 并存储到 localStorage`);
-                        } else {
-                            log("未找到有效的 div 元素内容");
-                        }
-                    } else {
-                        log("未找到目标 div 元素");
-                    }
+            if (input) { // 输入框存在
+                if (storedText) {
+                    // 粘贴到输入框
+                    input.value = storedText;
+                    const inputEvent = new Event('input', { bubbles: true });
+                    input.dispatchEvent(inputEvent);
+                    const keydownEvent = new KeyboardEvent('keydown', {
+                        key: 'Enter',
+                        code: 'Enter',
+                        keyCode: 13,
+                        bubbles: true
+                    });
+                    input.dispatchEvent(keydownEvent);
+                    log(`✅ 已粘贴数据: ${storedText} 并触发回车事件`);
                 }
 
-                // 添加延迟
-                await delay(config.interval*3);
-            } catch (error) {
-                // 捕获错误并跳过，确保代码不会中断
-                log(`⚠️ 检查 localStorage 或处理数据时发生错误: ${error.message}`);
+                // 无论是否有数据，都清空并复制div内容到localStorage
+                localStorage.removeItem(storageKey);
+                const existingDiv = document.querySelector('.custom-title.has-prefix');
+                if (existingDiv) {
+                    const text = existingDiv.textContent.trim();
+                    if (text) {
+                        localStorage.setItem(storageKey, text);
+                        log(`✅ 已复制div内容: ${text}`);
+                    } else {
+                        log("⚠️ 未找到有效div内容");
+                    }
+                } else {
+                    log("⚠️ 未找到目标div元素");
+                }
+            } else { // 输入框不存在
+                // 直接清空并复制div内容
+                localStorage.removeItem(storageKey);
+                const existingDiv = document.querySelector('.custom-title.has-prefix');
+                if (existingDiv) {
+                    const text = existingDiv.textContent.trim();
+                    if (text) {
+                        localStorage.setItem(storageKey, text);
+                        log(`✅ 已复制div内容: ${text}`);
+                    } else {
+                        log("⚠️ 未找到有效div内容");
+                    }
+                } else {
+                    log("⚠️ 未找到目标div元素");
+                }
             }
+
+            // 延时和后续质检操作保持不变
+            await delay(config.interval * 2);
 
             // 点击质检相关的单选框
-            const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item")).filter(el =>
-                el.textContent.includes('键盘印刷字迹清晰，无磨损、掉漆') ||
-                el.textContent.includes('键盘/触控板外观正常') ||
-                el.textContent.includes('触摸板和按键外观完好') ||
-                el.textContent.includes('转轴/铰链功能正常') ||
-                el.textContent.includes('部件之间缝隙正常') ||
-                el.textContent.includes('机身无缝隙') ||
-                el.textContent.includes('硬盘正常') ||
-                el.textContent.includes('不缺件') ||
-                el.textContent.includes('无以上')
-            );
+            const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item"))
+                .filter(el => [
+                    '键盘印刷字迹清晰，无磨损、掉漆',
+                    '触摸板和按键外观完好',
+                    '键盘/触控板外观正常',
+                    '转轴/铰链功能正常',
+                    '部件之间缝隙正常',
+                    '机身无缝隙',
+                    '硬盘正常',
+                    '不缺件',
+                    '无以上'
+                ].some(text => el.textContent.includes(text)));
+
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
-                log(`✅ 点击单选框: ${radioButton.textContent}`);
+                log(`✅ 已点击单选框: ${radioButton.textContent}`);
+                await delay(config.interval); // 添加等待时间
             }
 
+            // 提交流程
             await delay(config.interval);
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
             await retryClickElement("button", '提交');
             await delay(config.interval);
             await retryClickElement("span", '确 定');
-            await delay(config.interval);
         } catch (error) {
-            handleException(error, "质检操作处理失败");
+            handleException(error, "质检操作失败");
         }
     }
 
     // 处理质检操作页面初始化
     function handleOperationPage() {
-        if (config.debug) log('🔧 初始化质检操作页面...');
-        createDynamicButton('点我发财', handleQualitySubmission, 70);
+        if (config.debug) log('🔧 正在初始化质检页面...');
+        createDynamicButton('一键质检', handleQualitySubmission, 70);
     }
 
-    // 初始化脚本
+    // 脚本初始化
     (function init() {
-        // 动态加载 Google Fonts
+        // 动态加载字体
         const link = document.createElement('link');
         link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
-        if (config.debug) log('🎮 炫彩快捷键增强版初始化中...');
+        if (config.debug) log('🎮 炫彩增强版已加载');
 
-        // 在质检接收页面加载后自动跳转到质检操作页面
-        if (window.location.href.includes('inspection/reception') ||
-            window.location.href.includes('inspection/receive')) {
+        // 自动跳转到质检操作页面
+        if (window.location.href.includes('inspection/reception')) {
             (async () => {
                 try {
-                    await delay(config.interval*2);
-                    if (config.debug) log(`⏳ 等待 ${config.interval} 毫秒后跳转到质检操作页面`);
+                    await delay(config.interval * 2);
+                    log('⏳ 正在跳转到质检操作页面...');
                     window.location.href = '/ts-ocs/inspection/operation';
                 } catch (error) {
                     handleException(error, "自动跳转失败");
                 }
             })();
         } else {
-            // 在质检操作页面执行初始化操作
             handleOperationPage();
         }
     })();
