@@ -333,7 +333,7 @@
         return btn;
     }
 
-    // 一键质检逻辑（已按要求修改）
+    // 一键质检逻辑
     async function handleQualitySubmission() {
         try {
             const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
@@ -354,6 +354,8 @@
                     input.dispatchEvent(keydownEvent);
                     log(`✅ 已粘贴数据: ${storedText} 并触发回车事件`);
                 }
+
+                await delay(config.interval * 2);
 
                 // 无论是否有数据，都清空并复制div内容到localStorage
                 localStorage.removeItem(storageKey);
@@ -386,7 +388,6 @@
                 }
             }
 
-            // 延时和后续质检操作保持不变
             await delay(config.interval * 2);
 
             // 点击质检相关的单选框
