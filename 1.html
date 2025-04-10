@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>传奇 | 项目日记</title>
+    <title>传奇 | 项目站</title>
     <!-- 只引入一种手写字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <!-- 代码高亮支持 -->
@@ -218,7 +218,7 @@
 // @name         笔记本验机增强版脚本-炫彩版
 // @namespace    https://zhaolegend.github.io/zcq
 // @version      10.0
-// @description  整合自动复制粘贴、质检提交、动态按钮等功能
+// @description  整合自动复制粘贴、质检提交等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
 // @match        https://newocs.aihuishou.com/inspection/reception
 // @author       传奇
@@ -236,7 +236,6 @@
         interval: 500, // 统一延迟时间
         maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
-        pulseSpeed: 1000, // 动态按钮脉冲速度
         gradient: {
             angle: 135, // 渐变角度
             variance: 100 // 渐变色相范围
@@ -434,7 +433,7 @@
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
-        if (config.debug) log('🎮 炫彩增强版已加载');
+        if (config.debug) log('👌炫彩增强版已加载');
 
         // 自动跳转到质检操作页面
         if (window.location.href.includes('inspection/reception')) {
@@ -463,7 +462,7 @@
 // @name         笔记本验机增强版脚本-炫彩版-青春版
 // @namespace    https://zhaolegend.github.io/zcq
 // @version      10.0
-// @description  整合自动复制粘贴、质检提交、动态按钮等功能
+// @description  整合自动复制粘贴、质检提交等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
 // @match        https://newocs.aihuishou.com/inspection/reception
 // @author       传奇
@@ -481,7 +480,6 @@
         interval: 500, // 统一延迟时间
         maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
-        pulseSpeed: 1000, // 动态按钮脉冲速度
         gradient: {
             angle: 135, // 渐变角度
             variance: 100 // 渐变色相范围
@@ -593,6 +591,7 @@
             }
 
             await delay(config.interval);
+
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
             await retryClickElement("button", '提交');
@@ -618,7 +617,7 @@
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
-        if (config.debug) log('🎮 炫彩快捷键增强版初始化中...');
+        if (config.debug) log(' 炫彩快捷键增强版初始化中...👌');
 
         // 在质检接收页面加载后自动跳转到质检操作页面
         if (window.location.href.includes('inspection/reception') ||
