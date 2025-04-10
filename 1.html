@@ -408,7 +408,6 @@
             }
 
             // 提交流程
-            await delay(config.interval);
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
             await retryClickElement("button", '提交');
