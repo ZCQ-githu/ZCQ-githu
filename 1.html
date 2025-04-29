@@ -233,12 +233,12 @@
 
     // 统一配置参数
     const config = {
-        interval: 300, // 统一延迟时间
-        maxRetry: 3, // 最大重试次数
-        debug: true, // 是否启用调试模式
+        interval: 300,
+        maxRetry: 3,
+        debug: true,
         gradient: {
-            angle: 135, // 渐变角度
-            variance: 100 // 渐变色相范围
+            angle: 135,
+            variance: 100
         }
     };
 
@@ -360,7 +360,7 @@
                         keyCode: 13,
                         bubbles: true
                     }));
-                    log(`✅ 已粘贴数据: ${storedText} 并触发回车事件`);
+                    log(`✅ 已粘贴数据: ${storedText} 并触发回车`);
                 }
                 await delay(config.interval);
             } else { // 输入框不存在
@@ -381,7 +381,7 @@
             }
 
             // 强制等待质检单选框加载
-            await waitForElement("div.property-radio-item", 3000); // 等待3保元素加载
+            await waitForElement("div.property-radio-item", 3000);
 
             // 点击质检相关的单选框
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item"))
@@ -396,7 +396,6 @@
                     '不缺件',
                     '无以上'
                 ].some(text => el.textContent.includes(text)));
-            }
 
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
@@ -473,12 +472,12 @@
 
     // 统一配置参数
     const config = {
-        interval: 300, // 统一延迟时间
-        maxRetry: 3, // 最大重试次数
-        debug: true, // 是否启用调试模式
+        interval: 300,
+        maxRetry: 3,
+        debug: true,
         gradient: {
-            angle: 135, // 渐变角度
-            variance: 100 // 渐变色相范围
+            angle: 135,
+            variance: 100
         }
     };
 
@@ -627,7 +626,6 @@
                 }
             })();
         } else {
-            // 在质检操作页面执行初始化操作
             handleOperationPage();
         }
     })();
