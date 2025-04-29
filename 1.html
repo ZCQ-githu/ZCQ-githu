@@ -396,9 +396,6 @@
                     '不缺件',
                     '无以上'
                 ].some(text => el.textContent.includes(text)));
-
-            if (requiredRadioButtons.length === 0) {
-                throw new Error("❌ 未找到任何质检单选框选项");
             }
 
             for (const radioButton of requiredRadioButtons) {
