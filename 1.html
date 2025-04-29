@@ -216,7 +216,7 @@
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
 // @name         笔记本验机增强版脚本-炫彩版
-// @namespace    https://zhaolegend.github.io/zcq
+// @namespace    https://zhaolegend.github.io/chuanqi/zcq
 // @version      10.0
 // @description  整合自动复制粘贴、质检提交等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
@@ -233,7 +233,7 @@
 
     // 统一配置参数
     const config = {
-        interval: 500, // 统一延迟时间
+        interval: 300, // 统一延迟时间
         maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
         gradient: {
@@ -250,6 +250,17 @@
     // 通用函数
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 等待元素加载
+    async function waitForElement(selector, timeout = 5000) {
+        const startTime = Date.now();
+        while (Date.now() - startTime < timeout) {
+            const elements = document.querySelectorAll(selector);
+            if (elements.length > 0) return elements;
+            await delay(100);
+        }
+        throw new Error(`元素 ${selector} 在 ${timeout}ms 内未加载`);
     }
 
     async function retryClickElement(tag, text, maxRetryTimes = config.maxRetry) {
@@ -338,40 +349,21 @@
             const input = document.querySelector('input.ant-input[placeholder="请输入/扫码物品编码"]');
             let storedText = localStorage.getItem(storageKey);
 
+            // 输入框存在/不存在分支
             if (input) { // 输入框存在
                 if (storedText) {
-                    // 粘贴到输入框
                     input.value = storedText;
-                    const inputEvent = new Event('input', { bubbles: true });
-                    input.dispatchEvent(inputEvent);
-                    const keydownEvent = new KeyboardEvent('keydown', {
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new KeyboardEvent('keydown', {
                         key: 'Enter',
                         code: 'Enter',
                         keyCode: 13,
                         bubbles: true
-                    });
-                    input.dispatchEvent(keydownEvent);
+                    }));
                     log(`✅ 已粘贴数据: ${storedText} 并触发回车事件`);
                 }
-
-                await delay(config.interval * 2);
-
-                // 无论是否有数据，都清空并复制div内容到localStorage
-                localStorage.removeItem(storageKey);
-                const existingDiv = document.querySelector('.custom-title.has-prefix');
-                if (existingDiv) {
-                    const text = existingDiv.textContent.trim();
-                    if (text) {
-                        localStorage.setItem(storageKey, text);
-                        log(`✅ 已复制div内容: ${text}`);
-                    } else {
-                        log("⚠️ 未找到有效div内容");
-                    }
-                } else {
-                    log("⚠️ 未找到目标div元素");
-                }
+                await delay(config.interval);
             } else { // 输入框不存在
-                // 直接清空并复制div内容
                 localStorage.removeItem(storageKey);
                 const existingDiv = document.querySelector('.custom-title.has-prefix');
                 if (existingDiv) {
@@ -385,7 +377,11 @@
                 } else {
                     log("⚠️ 未找到目标div元素");
                 }
+                await delay(config.interval);
             }
+
+            // 强制等待质检单选框加载
+            await waitForElement("div.property-radio-item", 3000); // 等待3保元素加载
 
             // 点击质检相关的单选框
             const requiredRadioButtons = Array.from(document.querySelectorAll("div.property-radio-item"))
@@ -401,10 +397,14 @@
                     '无以上'
                 ].some(text => el.textContent.includes(text)));
 
+            if (requiredRadioButtons.length === 0) {
+                throw new Error("❌ 未找到任何质检单选框选项");
+            }
+
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
                 log(`✅ 已点击单选框: ${radioButton.textContent}`);
-                await delay(config.interval); // 添加等待时间
+                await delay(config.interval);
             }
 
             // 提交流程
@@ -459,7 +459,7 @@
             <pre class="language-javascript"><code class="language-javascript">
 // ==UserScript==
 // @name         笔记本验机增强版脚本-炫彩版-青春版
-// @namespace    https://zhaolegend.github.io/zcq
+// @namespace    https://zhaolegend.github.io/chuanqi/zcq
 // @version      10.0
 // @description  整合自动复制粘贴、质检提交等功能
 // @match        https://newocs.aihuishou.com/ts-ocs/inspection/operation*
@@ -476,7 +476,7 @@
 
     // 统一配置参数
     const config = {
-        interval: 500, // 统一延迟时间
+        interval: 300, // 统一延迟时间
         maxRetry: 3, // 最大重试次数
         debug: true, // 是否启用调试模式
         gradient: {
@@ -587,9 +587,8 @@
             for (const radioButton of requiredRadioButtons) {
                 radioButton.click();
                 log(`✅ 点击单选框: ${radioButton.textContent}`);
+                await delay(config.interval);
             }
-
-            await delay(config.interval);
 
             await retryClickElement("button", '点我刷新');
             await delay(config.interval);
@@ -638,8 +637,6 @@
 })();
             </code></pre>
             <p>
-                <strong>使用介绍：</strong><br>
-                该脚本为笔记本初检主观.拆修的质检模板专门定制，其他部门因质检模板不同无法使用啾！<br>
                 <strong>安装方法：</strong><br>
                 1. 打开任意浏览器安装 Tampermonkey 扩展。<br>
                 2. 点击 Tampermonkey 图标，选择"创建新脚本"。<br>
@@ -650,7 +647,7 @@
 
         <!-- 页脚 -->
         <footer class="footer">
-            <p>最后更新时间：2025-04-10 13:32:03 UTC</p>
+            <p>最后更新时间：2025-04-29 14:32:03 UTC</p>
             <p>作者：ZCQ-github</p>
         </footer>
     </div>
