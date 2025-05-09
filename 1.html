@@ -434,7 +434,7 @@
         if (window.location.href.includes('inspection/reception')) {
             (async () => {
                 try {
-                    await delay(config.interval * 2);
+                    await delay(config.interval);
                     log('⏳ 正在跳转到质检操作页面...');
                     window.location.href = '/ts-ocs/inspection/operation';
                 } catch (error) {
@@ -618,7 +618,7 @@
             window.location.href.includes('inspection/receive')) {
             (async () => {
                 try {
-                    await delay(config.interval*2);
+                    await delay(config.interval);
                     if (config.debug) log(`⏳ 等待 ${config.interval} 毫秒后跳转到质检操作页面`);
                     window.location.href = '/ts-ocs/inspection/operation';
                 } catch (error) {
