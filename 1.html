@@ -332,11 +332,24 @@
             transform-style: preserve-3d;
             perspective: 1000px;
             font-family:'Ma Shan Zheng', cursive !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         `;
         btn.classList.add('dynamic-button');
+        btn.addEventListener('mouseover', () => {
+            btn.style.transform = 'scale(1.05)';
+            btn.style.boxShadow = `${generateShadow(gradient.match(/hsl\(.*?\)/)[0])}, 0 6px 20px rgba(0, 0, 0, 0.3)`;
+        });
+        btn.addEventListener('mouseout', () => {
+            btn.style.transform = 'scale(1)';
+            btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
+        });
         btn.addEventListener('click', () => {
             btn.style.background = generateGradient();
             btn.style.boxShadow = generateShadow(gradient.match(/hsl\(.*?\)/)[0]);
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 100);
             onClick();
         });
         document.body.appendChild(btn);
@@ -423,7 +436,7 @@
     (function init() {
         // 动态加载字体
         const link = document.createElement('link');
-        link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap";
+        link.href = "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap ";
         link.rel = 'stylesheet';
         document.head.appendChild(link);
 
@@ -457,7 +470,7 @@
 
         <!-- 页脚 -->
         <footer class="footer">
-            <p>最后更新时间：2025-05-18 13:32:03 UTC</p>
+            <p>最后更新时间：2025-05-28 13:32:03 UTC</p>
             <p>作者：ZCQ-github</p>
         </footer>
     </div>
