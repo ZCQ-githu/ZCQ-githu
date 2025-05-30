@@ -1,1 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>赛博代码站</title>
+    <!--引入赛博字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron :wght@500&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <!-- 代码高亮支持 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    
+    <style>
+          /* 赛博朋克色彩系统 */
+          :root {
+              --cyber-blue: #000b2e;
+              --neon-blue: #00f3ff;
+              --text-glow: #4dc6ff;
+          }
 
+          /* 字体设置 */
+          * {
+              font-family: 'Roboto Mono', monospace !important;
+          }
+
+          /* 基础布局 */
+          body {
+              background-color: var(--cyber-blue);
+              color: var(--neon-blue);
+              line-height: 1.6;
+              margin: 0;
+              padding: 20px;
+              /* 霓虹网格背景 */
+              background-image: 
+                  linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
+              background-size: 20px 20px;
+          }
+
+          /* 容器样式 */
+          .container {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 2rem;
+          }
+
+          /* 标题样式 */
+          h1 {
+              color: var(--neon-blue);
+              text-align: center;
+              text-shadow: 0 0 10px var(--text-glow);
+              margin: 2rem 0;
+          }
+
+          /* 项目卡片 */
+          .project-card {
+              background: rgba(0, 15, 46, 0.5);
+              padding: 2rem;
+              margin: 2rem 0;
+              border: 2px solid var(--neon-blue);
+              box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+              animation: borderGlow 2s infinite alternate;
+          }
+
+          /* 子标题 */
+          h3 {
+              color: var(--neon-purple);
+              font-size: 2rem;
+              margin: 1.5rem 0;
+              border-bottom: 2px dashed var(--neon-green);
+              padding-bottom: 0.5rem;
+              text-shadow: 0 0 5px var(--neon-purple);
+          }
+
+          /* 技术标签 */
+          .tech-tag {
+              display: inline-block;
+              padding: 6px 12px;
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid var(--neon-green);
+              margin: 0 5px 10px 0;
+              border-radius: 4px;
+              color: var(--neon-blue);
+              font-family: 'Orbitron', sans-serif;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              animation: glow 2s infinite alternate;
+          }
+
+          /* 代码区域 */
+          pre[class*="language-"] {
+              background: #000520 !important;
+              border: 1px solid var(--neon-blue);
+              border-radius: 4px;
+          }
+
+          /* 强调文字 */
+          strong {
+              color: var(--neon-pink);
+              text-shadow: 0 0 5px var(--neon-pink);
+          }
+
+          /* 滚动条美化 */
+          ::-webkit-scrollbar {
+              width: 8px;
+              height: 8px;
+          }
+          ::-webkit-scrollbar-thumb {
+              background: var(--neon-blue);
+              border-radius: 4px;
+              box-shadow: 0 0 5px var(--neon-blue);
+          }
+          ::-webkit-scrollbar-track {
+              background: rgba(0, 15, 46, 0.5);
+              border-radius: 4px;
+          }
+
+          /* 页脚 */
+          .footer {
+              text-align: center;
+              margin-top: 2rem;
+              color: var(--neon-blue);
+          }
+
+          /* 水印 */
+          .watermark {
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              color: var(--neon-blue);
+              opacity: 0.3;
+          }
+
+          .dynamic-button:hover {
+              transform: scale(1.05) rotate(5deg);
+              box-shadow: 0 0 30px var(--neon-pink), 0 0 40px var(--neon-blue);
+          }
+
+          /* 全息光效动画 */
+          @keyframes glow {
+              0% { box-shadow: 0 0 5px var(--neon-blue); }
+              100% { box-shadow: 0 0 15px var(--neon-blue), 0 0 20px var(--neon-pink); }
+          }
+
+          /* 新增边框动画 */
+          @keyframes borderGlow {
+              0% {
+                  border-color: var(--neon-blue);
+                  box-shadow: 0 0 10px var(--neon-blue),
+                              inset 0 0 10px rgba(0, 243, 255, 0.2);
+              }
+              100% {
+                  border-color: #ff00ff;
+                  box-shadow: 0 0 20px #ff00ff,
+                              inset 0 0 20px rgba(255, 0, 255, 0.2);
+              }
+          }
+
+          /* 新增代码容器动画 */
+          @keyframes codeGlow {
+              0% {
+                  border-color: var(--neon-blue);
+                  box-shadow: 0 0 5px var(--neon-blue);
+              }
+              50% {
+                  border-color: #00ff00;
+                  box-shadow: 0 0 15px #00ff00;
+              }
+              100% {
+                  border-color: #ff00ff;
+                  box-shadow: 0 0 10px #ff00ff;
+              }
+          }
+
+          /* 响应式调整 */
+         @media (max-width: 768px) {
+              h1 {
+                  font-size: 2.5rem;
+              }
+              .dynamic-button {
+                  width: 100px;
+                  height: 40px;
+                  font-size: 14px;
+              }
+          }
+
+          /* 代码容器 */
+          .code-container {
+              max-height: 800px;
+              overflow-y: auto;
+              margin: 20px 0;
+              background: #000520;
+              border: 1px solid var(--neon-blue);
+              border-radius: 4px;
+              box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+              animation: codeGlow 3s infinite alternate;
+          }
+
+          .code-title {
+              color: var(--neon-blue);
+              font-size: 1.2rem;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+          }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题区 -->
+        <header>
+            <h1>代码托管</h1>
+        </header>
+
+        <!-- 妖精视频代码展示区 -->
+        <article class="project-card">
+            <h3>2026高级烟花动画代码</h3>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">css</span>
+            <div class="code-container">
+                <div class="code-title">Tampermonkey 脚本代码</div>
+                <pre class="language-javascript"><code class="language-javascript">
+/*
+代
+码
+研
+究
+中
+！
+！
+！
+！
+！
+*/
+            </code></pre>
+            </div>
+        </article>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>最后更新时间：2025-05-30 13:32:03 UTC</p>
+            <p>作者：ZCQ-github</p>
+        </footer>
+    </div>
+
+    <!-- 水印 -->
+    <div class="watermark">
+        传奇工作室 © 2025
+    </div>
+
+    <script>
+        // 确保代码高亮
+        document.addEventListener('DOMContentLoaded', (event) => {
+            Prism.highlightAll();
+        });
+    </script>
+</body>
+</html>
